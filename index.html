@@ -1349,6 +1349,7 @@ function updatePCAC() {
 //  WIZARD
 // ════════════════════════════════════════════════════════
 let wStep = 1;
+let wProjectData = { name: 'Camelback Commons – Phase 2', gc: 'SAM Construction Group', completion: 'Dec 15, 2026', contract: '$1,050,000' };
 const W_LABELS = ['Project Details','Cost Structure','Division Budgets','Owners & Alerts'];
 const W_DIV_DEFAULTS = {
   '01':48000,'03':218000,'05':185000,'06':94000,'09':112000,'15':156000,'16':128000
@@ -1398,7 +1399,7 @@ function renderWizard() {
       </div>
       <div class="wizard-footer">
         <span></span>
-        <button class="btn btn-dark" onclick="wStep++;renderWizard()">Continue →</button>
+        <button class="btn btn-dark" onclick="saveProjectDetails();wStep++;renderWizard()">Continue →</button>
       </div>
     </div>`;
   } else if (wStep === 2) {
@@ -1489,12 +1490,13 @@ function renderWizard() {
       </div>
     </div>`;
   } else if (wStep === 5) {
+    injectNewProjectCard();
     cHtml = `<div class="wcard">
       <div class="success-wrap">
         <div class="success-icon">✓</div>
         <div class="success-title">Project Budget Activated!</div>
-        <div class="success-sub">Camelback Commons – Phase 2 is live. PCAC projection will begin calculating as the first transactions post. Division owners have been notified via SMS.</div>
-        <button class="btn btn-dark" onclick="showFlow('dashboard')">View All Projects →</button>
+        <div class="success-sub">${wProjectData.name} is live. PCAC projection will begin calculating as the first transactions post. Division owners have been notified via SMS.</div>
+        <button class="btn btn-dark" onclick="showFlow('dashboard');showTab('construction')">View All Projects →</button>
       </div>
     </div>`;
     // Hide steps bar on success
@@ -1506,6 +1508,55 @@ function renderWizard() {
 function selectTpl(id) {
   document.querySelectorAll('.tpl-opt').forEach(el => el.classList.remove('selected'));
   document.getElementById('tpl-' + id).classList.add('selected');
+}
+
+function saveProjectDetails() {
+  const inputs = document.querySelectorAll('.wcard .form-input');
+  if (inputs.length >= 5) {
+    wProjectData = {
+      name:       inputs[0].value || 'New Project',
+      contract:   inputs[1].value || '$0',
+      gc:         inputs[2].value || 'SAM Construction Group',
+      startDate:  inputs[3].value || '',
+      completion: inputs[4].value || ''
+    };
+  }
+}
+
+function injectNewProjectCard() {
+  // Guard: don't add the same project twice
+  if (document.getElementById('new-injected-project')) return;
+  const wrap = document.querySelector('#tab-construction .projects-wrap');
+  if (!wrap) return;
+
+  // Bump the count label
+  const meta = wrap.querySelector('.projects-meta');
+  if (meta) {
+    const current = parseInt(meta.textContent.match(/\d+/)?.[0] || '3');
+    meta.textContent = `Active Projects — ${current + 1}`;
+  }
+
+  // Build and append the new card
+  const card = document.createElement('div');
+  card.id = 'new-injected-project';
+  card.className = 'project-card';
+  card.onclick = () => showScreen('screen-project-detail');
+  card.innerHTML = `
+    <div class="status-dot dot-green"></div>
+    <div class="proj-info">
+      <div class="proj-name">${wProjectData.name}</div>
+      <div class="proj-meta">Phoenix, AZ · ${wProjectData.gc} · Est. completion ${wProjectData.completion}</div>
+    </div>
+    <div class="proj-progress">
+      <div class="prog-label"><span>0% of budget spent</span></div>
+      <div class="prog-bar"><div class="prog-fill fill-g" style="width:0%"></div></div>
+    </div>
+    <div class="proj-amt">
+      <div class="amt-label">Actual / Budget</div>
+      <div class="amt-val">$0 / ${wProjectData.contract}</div>
+    </div>
+    <span class="pill pill-green">● On Track</span>`;
+  wrap.appendChild(card);
 }
 
 function toggleConcreteBreakdown(e) {
