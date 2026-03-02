@@ -301,10 +301,21 @@
     /* Division budget entry */
     .div-row { display: flex; align-items: center; padding: 9px 0; border-bottom: 1px solid #F3F4F6; gap: 10px; }
     .div-row:last-child { border-bottom: none; }
+    .div-row-expandable { cursor: pointer; user-select: none; }
+    .div-row-expandable:hover { background: #F9FAFB; border-radius: 6px; }
     .div-badge { background: #F3F4F6; color: #6B7280; font-size: 9px; font-weight: 700; padding: 3px 7px; border-radius: 4px; width: 40px; text-align: center; flex-shrink: 0; }
     .div-name-w { flex: 1; font-size: 12px; font-weight: 500; }
+    .div-toggle-icon { font-size: 10px; color: #9CA3AF; margin-left: 4px; transition: transform 0.15s; }
     .div-input { width: 120px; padding: 6px 9px; border: 1px solid #D1D5DB; border-radius: 6px; font-size: 12px; font-family: 'Inter', sans-serif; text-align: right; }
     .div-input:focus { outline: none; border-color: #059669; }
+    .subdiv-block { background: #F9FAFB; border-left: 3px solid #D1FAE5; margin: 0 0 4px 0; border-radius: 0 6px 6px 0; overflow: hidden; }
+    .subdiv-row { display: flex; align-items: flex-start; gap: 10px; padding: 7px 12px 7px 12px; border-bottom: 1px solid #F3F4F6; font-size: 11.5px; }
+    .subdiv-row:last-child { border-bottom: none; }
+    .subdiv-code { font-family: monospace; font-weight: 700; color: #059669; min-width: 58px; flex-shrink: 0; padding-top: 1px; }
+    .subdiv-name { font-weight: 600; color: #111827; min-width: 140px; flex-shrink: 0; padding-top: 1px; }
+    .subdiv-desc { color: #6B7280; flex: 1; line-height: 1.4; }
+    .learn-more-link { font-size: 11.5px; color: #059669; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; margin-top: 4px; }
+    .learn-more-link:hover { text-decoration: underline; }
     .budget-summary { margin-top: 12px; padding: 10px 13px; background: #F0FDF9; border-radius: 7px; font-size: 12px; color: #065F46; }
 
     /* Activation success */
@@ -1393,16 +1404,16 @@ function renderWizard() {
   } else if (wStep === 2) {
     cHtml = `<div class="wcard">
       <div class="wcard-title">Choose Cost Structure</div>
-      <div class="wcard-sub">How would you like to organize your project budget?</div>
+      <div class="wcard-sub">How would you like to organize your project budget? <a href="https://www.csiresources.org/standards/overview" target="_blank" class="learn-more-link">Learn more about CSI MasterFormat ↗</a></div>
       <div class="tpl-options">
         <div class="tpl-opt selected" id="tpl-csi" onclick="selectTpl('csi')">
           <div class="tpl-badge">Recommended — No ERP required</div>
           <div class="tpl-title">🏗 Ramp CSI MasterFormat Template</div>
-          <div class="tpl-desc">Pre-populated Division 01–16 hierarchy lives natively in Ramp. AI maps every card swipe to the right division at the point of purchase — no ERP pre-configuration needed.</div>
+          <div class="tpl-desc">Pre-populated division hierarchy lives natively in Ramp. AI maps every field card swipe to the correct CSI code down to level 3 at the point of purchase. No ERP pre-configuration needed.</div>
         </div>
         <div class="tpl-opt" id="tpl-procore" onclick="selectTpl('procore')">
-          <div class="tpl-title">↗ Import from Procore or ERP</div>
-          <div class="tpl-desc">Sync your existing WBS or Schedule of Values from Procore, Sage 300 CRE, Viewpoint Vista, or any connected ERP. Requires cost codes to be pre-configured in the source system.</div>
+          <div class="tpl-title">↗ Use your ERP</div>
+          <div class="tpl-desc">Sync your existing WBS or schedule of values from any connected ERP. Note that this requires cost codes to be pre-configured in the source system. Any downstream errors could impact this budget.</div>
         </div>
       </div>
       <div class="wizard-footer">
@@ -1411,17 +1422,42 @@ function renderWizard() {
       </div>
     </div>`;
   } else if (wStep === 3) {
-    const rows = W_DIVS.map(d =>
-      `<div class="div-row">
+    const rows = W_DIVS.map(d => {
+      if (d.code === '03') {
+        return `<div class="div-row div-row-expandable" onclick="toggleConcreteBreakdown(event)">
+          <div class="div-badge">Div ${d.code}</div>
+          <div class="div-name-w">${d.name} <span id="concrete-toggle-icon" class="div-toggle-icon">▶</span></div>
+          <input class="div-input" value="$${W_DIV_DEFAULTS[d.code].toLocaleString()}" oninput="updateWTotal()" onclick="event.stopPropagation()">
+        </div>
+        <div id="concrete-breakdown" class="subdiv-block" style="display:none;">
+          <div class="subdiv-row">
+            <div class="subdiv-code">03 10 00</div>
+            <div class="subdiv-name">Concrete Forming</div>
+            <div class="subdiv-desc">Costs for renting or buying forms and the labor to set them.</div>
+          </div>
+          <div class="subdiv-row">
+            <div class="subdiv-code">03 20 00</div>
+            <div class="subdiv-name">Concrete Reinforcing</div>
+            <div class="subdiv-desc">Costs for rebar and mesh.</div>
+          </div>
+          <div class="subdiv-row">
+            <div class="subdiv-code">03 30 00</div>
+            <div class="subdiv-name">Cast-in-Place Concrete</div>
+            <div class="subdiv-desc">The actual cost of the concrete mix and the labor to pour it.</div>
+          </div>
+        </div>`;
+      }
+      return `<div class="div-row">
         <div class="div-badge">Div ${d.code}</div>
         <div class="div-name-w">${d.name}</div>
         <input class="div-input" value="$${W_DIV_DEFAULTS[d.code].toLocaleString()}" oninput="updateWTotal()">
-      </div>`
-    ).join('');
+      </div>`;
+    }).join('');
     cHtml = `<div class="wcard">
       <div class="wcard-title">Enter Division Budgets</div>
       <div class="wcard-sub">Set the budget for each CSI division. Ramp will track spend and alert you as thresholds are approached.</div>
-      <div>${rows}</div>
+      <div id="div-rows-container">${rows}</div>
+      <button class="btn btn-outline btn-sm" style="margin-top: 10px;" onclick="addDivisionRow()">+ Add Division</button>
       <div class="budget-summary" id="w-summary">
         Total Budget: <strong>$941,000</strong> · Contract Value: $1,050,000 · Bid Margin: <strong>10.4%</strong>
       </div>
@@ -1470,6 +1506,27 @@ function renderWizard() {
 function selectTpl(id) {
   document.querySelectorAll('.tpl-opt').forEach(el => el.classList.remove('selected'));
   document.getElementById('tpl-' + id).classList.add('selected');
+}
+
+function toggleConcreteBreakdown(e) {
+  if (e) e.stopPropagation();
+  const bd = document.getElementById('concrete-breakdown');
+  const icon = document.getElementById('concrete-toggle-icon');
+  if (!bd) return;
+  const expanded = bd.style.display !== 'none';
+  bd.style.display = expanded ? 'none' : 'block';
+  if (icon) icon.textContent = expanded ? '▶' : '▼';
+}
+
+function addDivisionRow() {
+  const container = document.getElementById('div-rows-container');
+  if (!container) return;
+  const row = document.createElement('div');
+  row.className = 'div-row';
+  row.innerHTML = `<input class="div-input" placeholder="Div ##" style="width:52px;text-align:left;">
+    <div class="div-name-w"><input class="div-input" placeholder="Division name" style="width:100%;box-sizing:border-box;"></div>
+    <input class="div-input" placeholder="$0" oninput="updateWTotal()">`;
+  container.appendChild(row);
 }
 
 function updateWTotal() {
