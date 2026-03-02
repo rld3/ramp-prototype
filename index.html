@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ramp Construction Budgets — Interactive Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #F9FAFB; color: #111827; overflow: hidden; }
+
+    /* ── DEMO BAR ─────────────────────────────────────── */
+    .demo-bar {
+      background: #0F1F38;
+      color: white;
+      padding: 0 20px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .demo-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #7BAFD4;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-right: 6px;
+      white-space: nowrap;
+    }
+    .demo-sep { color: rgba(255,255,255,0.15); margin: 0 2px; }
+    .demo-btn {
+      padding: 5px 13px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: transparent;
+      color: rgba(255,255,255,0.6);
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .demo-btn:hover { background: rgba(255,255,255,0.08); color: white; }
+    .demo-btn.active { background: #00BA88; border-color: #00BA88; color: white; font-weight: 600; }
+    .demo-right { margin-left: auto; font-size: 11px; color: rgba(255,255,255,0.3); white-space: nowrap; }
+
+    /* ── APP SHELL ────────────────────────────────────── */
+    .app-shell { display: flex; height: 100vh; padding-top: 44px; }
+
+    /* ── SIDEBAR ──────────────────────────────────────── */
+    .sidebar {
+      width: 192px;
+      min-width: 192px;
+      background: white;
+      border-right: 1px solid #E5E7EB;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .sidebar-logo {
+      padding: 18px 16px 14px;
+      border-bottom: 1px solid #F3F4F6;
+    }
+    .ramp-wordmark { font-size: 22px; font-weight: 700; color: #111827; letter-spacing: -0.5px; }
+    .ramp-sub { font-size: 9px; color: #9CA3AF; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 1px; }
+    .sidebar-nav { padding: 10px 0; flex: 1; }
+    .nav-section { font-size: 9.5px; font-weight: 700; color: #9CA3AF; letter-spacing: 0.8px; text-transform: uppercase; padding: 10px 16px 4px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 7px 16px;
+      font-size: 13px; font-weight: 500; color: #6B7280;
+      cursor: pointer; transition: all 0.1s;
+    }
+    .nav-item:hover { background: #F9FAFB; color: #111827; }
+    .nav-item.active { background: #F0FDF9; color: #059669; font-weight: 600; }
+    .nav-icon { font-size: 13px; width: 16px; text-align: center; }
+    .nav-badge {
+      margin-left: auto; background: #FEF3C7; color: #D97706;
+      font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px;
+    }
+    .nav-badge.red { background: #FEE2E2; color: #991B1B; }
+
+    /* ── MAIN CONTENT ─────────────────────────────────── */
+    .main-content { flex: 1; overflow-y: auto; position: relative; background: #F9FAFB; }
+    .screen { display: none; min-height: calc(100vh - 44px); }
+    .screen.active { display: block; }
+
+    /* ── PAGE HEADER ──────────────────────────────────── */
+    .page-header {
+      padding: 20px 28px 18px;
+      background: white;
+      border-bottom: 1px solid #E5E7EB;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .page-title { font-size: 19px; font-weight: 700; color: #111827; }
+    .page-subtitle { font-size: 12px; color: #9CA3AF; margin-top: 2px; }
+
+    /* ── BUTTONS ──────────────────────────────────────── */
+    .btn { padding: 8px 14px; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; font-family: 'Inter', sans-serif; }
+    .btn-dark { background: #111827; color: white; }
+    .btn-dark:hover { background: #1F2937; }
+    .btn-green { background: #059669; color: white; }
+    .btn-green:hover { background: #047857; }
+    .btn-outline { background: white; color: #374151; border: 1px solid #D1D5DB; }
+    .btn-outline:hover { background: #F9FAFB; }
+    .btn-sm { padding: 5px 10px; font-size: 11px; }
+
+    /* ── STATUS CHIPS ─────────────────────────────────── */
+    .pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .pill-green { background: #D1FAE5; color: #065F46; }
+    .pill-yellow { background: #FEF3C7; color: #92400E; }
+    .pill-red { background: #FEE2E2; color: #991B1B; }
+    .ai-chip { display: inline-flex; align-items: center; gap: 3px; background: #EFF6FF; color: #1D4ED8; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 10px; }
+
+    /* ══════════════════════════════════════════════════
+       FLOW 1 — CFO DASHBOARD
+    ══════════════════════════════════════════════════ */
+    .projects-wrap { padding: 22px 28px; }
+    .projects-meta { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 12px; }
+
+    .project-card {
+      background: white; border: 1px solid #E5E7EB; border-radius: 10px;
+      padding: 16px 20px; cursor: pointer; transition: all 0.15s;
+      display: flex; align-items: center; gap: 14px; margin-bottom: 10px;
+    }
+    .project-card:hover { border-color: #059669; box-shadow: 0 2px 12px rgba(5,150,105,0.1); }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .dot-green { background: #10B981; }
+    .dot-yellow { background: #F59E0B; }
+    .dot-red { background: #EF4444; }
+    .proj-info { flex: 1; }
+    .proj-name { font-size: 14px; font-weight: 600; color: #111827; }
+    .proj-meta { font-size: 11px; color: #9CA3AF; margin-top: 2px; }
+    .proj-progress { width: 160px; min-width: 160px; flex-shrink: 0; }
+    .prog-label { display: flex; justify-content: space-between; font-size: 11px; color: #6B7280; margin-bottom: 4px; }
+    .prog-bar { background: #F3F4F6; border-radius: 3px; height: 5px; overflow: hidden; }
+    .prog-fill { height: 100%; border-radius: 3px; }
+    .fill-g { background: #10B981; }
+    .fill-y { background: #F59E0B; }
+    .fill-r { background: #EF4444; }
+    .proj-amt { text-align: right; min-width: 120px; flex-shrink: 0; }
+    .amt-label { font-size: 10px; color: #9CA3AF; }
+    .amt-val { font-size: 15px; font-weight: 700; color: #111827; }
+    .warn-tag { font-size: 10px; color: #D97706; font-weight: 600; }
+
+    /* ── PROJECT DETAIL ───────────────────────────────── */
+    .breadcrumb { font-size: 11px; color: #9CA3AF; display: flex; align-items: center; gap: 5px; margin-bottom: 6px; }
+    .bc-link { color: #059669; cursor: pointer; }
+    .bc-link:hover { text-decoration: underline; }
+    .detail-wrap { padding: 20px 28px; }
+    .metric-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
+    .metric-card { background: white; border: 1px solid #E5E7EB; border-radius: 9px; padding: 14px 18px; }
+    .mc-label { font-size: 10px; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
+    .mc-value { font-size: 21px; font-weight: 700; color: #111827; }
+    .mc-sub { font-size: 11px; color: #6B7280; margin-top: 2px; }
+
+    /* PCAC Banner */
+    .pcac-banner {
+      background: white; border: 1px solid #E5E7EB; border-radius: 10px;
+      padding: 18px 22px; margin-bottom: 18px; transition: all 0.3s;
+    }
+    .pcac-banner.warning { border-color: #FCD34D; background: #FFFBEB; }
+    .pcac-banner.healthy { border-color: #6EE7B7; background: #F0FDF9; }
+    .pcac-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .pcac-title { font-size: 12px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.5px; }
+    .pcac-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 14px; }
+    .pcac-m-label { font-size: 10px; color: #9CA3AF; margin-bottom: 3px; }
+    .pcac-m-value { font-size: 20px; font-weight: 700; }
+    .pv-warn { color: #F59E0B; }
+    .pv-ok { color: #059669; }
+    .pv-normal { color: #111827; }
+    .pcac-alert {
+      padding: 10px 13px; border-radius: 7px; font-size: 12px;
+      display: flex; align-items: flex-start; gap: 8px;
+    }
+    .pcac-alert.warn { background: #FEF3C7; border: 1px solid #FCD34D; color: #92400E; }
+    .pcac-alert.ok { background: #D1FAE5; border: 1px solid #6EE7B7; color: #065F46; }
+    .edit-tip { font-size: 10px; color: #6B7280; margin-top: 6px; font-style: italic; }
+
+    /* CSI Table */
+    .table-card { background: white; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; margin-bottom: 16px; }
+    .table-card-hdr { padding: 13px 18px; border-bottom: 1px solid #E5E7EB; display: flex; align-items: center; justify-content: space-between; }
+    .table-card-title { font-size: 13px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 9px 14px; text-align: left; font-size: 10px; font-weight: 700; color: #6B7280; background: #F9FAFB; border-bottom: 1px solid #E5E7EB; text-transform: uppercase; letter-spacing: 0.4px; }
+    th.r { text-align: right; }
+    td { padding: 11px 14px; font-size: 12px; border-bottom: 1px solid #F3F4F6; }
+    td.r { text-align: right; }
+    tr:last-child td { border-bottom: none; }
+    tr.total-row td { font-weight: 700; background: #F9FAFB; font-size: 13px; border-top: 2px solid #E5E7EB; }
+    tr.data-row { cursor: pointer; transition: background 0.1s; }
+    tr.data-row:hover td { background: #F0FDF9; }
+    tr.total-row:hover td { background: #F9FAFB; }
+    .div-name { font-weight: 600; color: #111827; font-size: 12px; }
+    .div-code { font-size: 10px; color: #9CA3AF; }
+    .over-tag { font-size: 10px; color: #EF4444; font-weight: 600; }
+    .flag-tag { font-size: 10px; color: #D97706; font-weight: 600; }
+
+    /* Editable budget */
+    .edit-amt {
+      cursor: pointer; border-radius: 4px; padding: 2px 5px;
+      transition: background 0.1s; display: inline-block;
+    }
+    .edit-amt:hover { background: #EFF6FF; outline: 1px dashed #93C5FD; }
+    .edit-input {
+      width: 90px; padding: 3px 6px; border: 1.5px solid #059669;
+      border-radius: 4px; font-size: 12px; font-family: 'Inter', sans-serif;
+      text-align: right; background: #F0FDF9; color: #111827;
+    }
+    .edit-input:focus { outline: none; }
+
+    /* Pct bar inline */
+    .pct-bar-wrap { display: flex; align-items: center; gap: 6px; justify-content: flex-end; }
+    .pct-bar-bg { width: 50px; background: #F3F4F6; border-radius: 3px; height: 5px; overflow: hidden; }
+    .pct-bar-fill { height: 100%; border-radius: 3px; }
+
+    /* Division detail */
+    .ai-insight {
+      background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 9px;
+      padding: 12px 16px; margin-bottom: 16px; font-size: 12px; color: #92400E;
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .tx-list { background: white; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; margin-bottom: 16px; }
+    .tx-item { display: flex; align-items: center; padding: 11px 18px; border-bottom: 1px solid #F3F4F6; gap: 12px; }
+    .tx-item:last-child { border-bottom: none; }
+    .vendor-dot { width: 34px; height: 34px; border-radius: 7px; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #374151; flex-shrink: 0; }
+    .tx-info { flex: 1; }
+    .tx-vendor { font-size: 12px; font-weight: 600; }
+    .tx-meta { font-size: 10px; color: #9CA3AF; }
+    .tx-amt { font-size: 13px; font-weight: 700; }
+
+    /* Burn chart */
+    .burn-card { background: white; border: 1px solid #E5E7EB; border-radius: 10px; padding: 16px 20px; margin-bottom: 16px; }
+    .burn-title { font-size: 12px; font-weight: 700; margin-bottom: 14px; color: #374151; }
+    .bars-row { display: flex; align-items: flex-end; gap: 8px; height: 70px; }
+    .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .bar-pair { display: flex; gap: 2px; align-items: flex-end; }
+    .bar { border-radius: 2px 2px 0 0; width: 13px; }
+    .bar-est { background: #E5E7EB; }
+    .bar-ok { background: #10B981; }
+    .bar-warn { background: #F59E0B; }
+    .bar-over { background: #EF4444; }
+    .bar-proj { background: repeating-linear-gradient(45deg, #FEF3C7, #FEF3C7 3px, #FCD34D 3px, #FCD34D 6px); }
+    .bar-label { font-size: 9px; color: #9CA3AF; text-align: center; }
+    .legend-row { display: flex; gap: 14px; margin-top: 10px; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #6B7280; }
+    .legend-dot { width: 10px; height: 7px; border-radius: 2px; }
+
+    /* Action bar */
+    .action-bar { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* ══════════════════════════════════════════════════
+       FLOW 2 — SETUP WIZARD
+    ══════════════════════════════════════════════════ */
+    .wizard-wrap { max-width: 680px; margin: 28px auto; padding: 0 20px 40px; }
+    .wizard-steps { display: flex; align-items: center; margin-bottom: 28px; }
+    .ws-item { display: flex; align-items: center; gap: 7px; flex: 1; }
+    .ws-item:not(:last-child)::after { content:''; flex:1; height:2px; background:#E5E7EB; margin:0 6px; }
+    .ws-item.done::after { background: #059669; }
+    .ws-circle {
+      width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; font-size: 11px; font-weight: 700;
+      border: 2px solid #E5E7EB; color: #9CA3AF; background: white; flex-shrink: 0;
+    }
+    .ws-circle.active { border-color: #059669; color: #059669; }
+    .ws-circle.done { border-color: #059669; background: #059669; color: white; }
+    .ws-label { font-size: 11px; color: #6B7280; white-space: nowrap; }
+    .ws-label.active { color: #059669; font-weight: 600; }
+
+    .wcard { background: white; border: 1px solid #E5E7EB; border-radius: 12px; padding: 26px 28px; }
+    .wcard-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+    .wcard-sub { font-size: 12px; color: #6B7280; margin-bottom: 22px; }
+    .form-group { margin-bottom: 16px; }
+    .form-label { font-size: 11px; font-weight: 600; color: #374151; display: block; margin-bottom: 5px; }
+    .form-input {
+      width: 100%; padding: 8px 11px; border: 1px solid #D1D5DB; border-radius: 7px;
+      font-size: 12px; font-family: 'Inter', sans-serif; color: #111827; transition: border-color 0.15s;
+    }
+    .form-input:focus { outline: none; border-color: #059669; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .wizard-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 18px; border-top: 1px solid #E5E7EB; }
+
+    /* Template options */
+    .tpl-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .tpl-opt {
+      border: 2px solid #E5E7EB; border-radius: 9px; padding: 14px;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .tpl-opt:hover { border-color: #059669; }
+    .tpl-opt.selected { border-color: #059669; background: #F0FDF9; }
+    .tpl-badge { display: inline-block; background: #D1FAE5; color: #065F46; font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 8px; margin-bottom: 6px; }
+    .tpl-title { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+    .tpl-desc { font-size: 11px; color: #6B7280; line-height: 1.5; }
+
+    /* Division budget entry */
+    .div-row { display: flex; align-items: center; padding: 9px 0; border-bottom: 1px solid #F3F4F6; gap: 10px; }
+    .div-row:last-child { border-bottom: none; }
+    .div-badge { background: #F3F4F6; color: #6B7280; font-size: 9px; font-weight: 700; padding: 3px 7px; border-radius: 4px; width: 40px; text-align: center; flex-shrink: 0; }
+    .div-name-w { flex: 1; font-size: 12px; font-weight: 500; }
+    .div-input { width: 120px; padding: 6px 9px; border: 1px solid #D1D5DB; border-radius: 6px; font-size: 12px; font-family: 'Inter', sans-serif; text-align: right; }
+    .div-input:focus { outline: none; border-color: #059669; }
+    .budget-summary { margin-top: 12px; padding: 10px 13px; background: #F0FDF9; border-radius: 7px; font-size: 12px; color: #065F46; }
+
+    /* Activation success */
+    .success-wrap { text-align: center; padding: 36px 20px; }
+    .success-icon { width: 60px; height: 60px; background: #D1FAE5; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; margin: 0 auto 14px; }
+    .success-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .success-sub { font-size: 13px; color: #6B7280; margin-bottom: 22px; }
+
+    /* ══════════════════════════════════════════════════
+       FLOW 3 — FIELD WORKER
+    ══════════════════════════════════════════════════ */
+    .fw-wrap { display: flex; gap: 36px; padding: 24px 28px; align-items: flex-start; }
+    .phone-frame {
+      width: 290px; min-width: 290px; background: #1F2937;
+      border-radius: 36px; padding: 10px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.28);
+    }
+    .phone-screen { background: white; border-radius: 28px; overflow: hidden; height: 520px; display: flex; flex-direction: column; }
+    .sms-hdr { background: #F9FAFB; padding: 10px 14px; display: flex; align-items: center; gap: 9px; border-bottom: 1px solid #E5E7EB; flex-shrink: 0; }
+    .sms-avatar { width: 32px; height: 32px; background: #1A2F52; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 700; }
+    .sms-contact { font-size: 13px; font-weight: 600; }
+    .sms-subtext { font-size: 10px; color: #9CA3AF; }
+    .sms-body { flex: 1; overflow-y: auto; padding: 12px 10px; background: #F9FAFB; display: flex; flex-direction: column; gap: 8px; }
+    .sms-ts { font-size: 9px; color: #9CA3AF; text-align: center; }
+    .bubble { max-width: 84%; padding: 9px 12px; border-radius: 14px; font-size: 12px; line-height: 1.45; }
+    .bubble-ramp { background: white; border: 1px solid #E5E7EB; color: #111827; align-self: flex-start; border-bottom-left-radius: 3px; }
+    .bubble-ramp.ai-bg { background: #EFF6FF; border-color: #BFDBFE; }
+    .bubble-ramp.confirm-bg { background: #D1FAE5; border-color: #6EE7B7; }
+    .bubble-worker { background: #059669; color: white; align-self: flex-end; border-bottom-right-radius: 3px; }
+    .receipt-mock { background: linear-gradient(135deg,#EEF2FF,#E0E7FF); border: 2px dashed #818CF8; border-radius: 8px; padding: 12px; text-align: center; font-size: 10px; color: #6366F1; }
+    .confirm-btns { display: flex; gap: 6px; align-self: flex-end; }
+    .c-btn { padding: 5px 12px; border-radius: 7px; font-size: 11px; font-weight: 600; cursor: pointer; border: none; }
+    .c-yes { background: #059669; color: white; }
+    .c-edit { background: #F3F4F6; color: #374151; }
+    .sms-input-row { padding: 8px 10px; background: white; border-top: 1px solid #E5E7EB; display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+    .sms-input { flex: 1; padding: 7px 11px; border: 1px solid #E5E7EB; border-radius: 18px; font-size: 12px; font-family: 'Inter', sans-serif; }
+    .sms-input:focus { outline: none; border-color: #059669; }
+    .sms-send { width: 30px; height: 30px; border-radius: 50%; background: #059669; border: none; color: white; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+
+    /* Explainer panel */
+    .fw-explainer { flex: 1; max-width: 360px; padding-top: 4px; }
+    .exp-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+    .flow-step { display: flex; gap: 11px; margin-bottom: 18px; opacity: 0.35; transition: opacity 0.3s; }
+    .flow-step.on { opacity: 1; }
+    .fs-num { width: 22px; height: 22px; border-radius: 50%; background: #F3F4F6; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #374151; flex-shrink: 0; margin-top: 1px; }
+    .flow-step.on .fs-num { background: #059669; color: white; }
+    .fs-text { font-size: 12px; color: #374151; line-height: 1.5; }
+    .fs-text strong { color: #111827; }
+    .step-ctrl { margin-top: 22px; display: flex; gap: 8px; }
+    .live-update { display: none; margin-top: 20px; background: white; border: 1px solid #E5E7EB; border-radius: 9px; padding: 14px; }
+    .lu-title { font-size: 11px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 10px; }
+    .lu-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
+    .lu-new { color: #059669; font-weight: 700; }
+    .lu-footer { font-size: 10px; color: #9CA3AF; margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+<!-- ── DEMO NAVIGATION BAR ─────────────────────────── -->
+<div class="demo-bar">
+  <span class="demo-label">Prototype</span>
+  <span class="demo-sep">|</span>
+  <button class="demo-btn active" id="btn-dashboard" onclick="showFlow('dashboard')">① CFO Dashboard</button>
+  <button class="demo-btn" id="btn-setup" onclick="showFlow('setup')">② Budget Setup</button>
+  <button class="demo-btn" id="btn-fw" onclick="showFlow('fw')">③ Field Worker</button>
+</div>
+
+<!-- ── APP SHELL ───────────────────────────────────── -->
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="ramp-wordmark">ramp</div>
+      <div class="ramp-sub">for Construction</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-item" onclick="showFlow('dashboard')">
+        <span class="nav-icon">⊞</span> Overview
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">▤</span> Cards
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">↗</span> Spend
+      </div>
+      <div class="nav-item" id="nav-budgets" onclick="showFlow('dashboard')">
+        <span class="nav-icon">◎</span> Budgets
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">$</span> Bill Pay
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">↩</span> Reimbursements
+      </div>
+      <div class="nav-section">Construction ✦ New</div>
+      <div class="nav-item active" id="nav-projects" onclick="showFlow('dashboard')">
+        <span class="nav-icon">🏗</span> Projects
+        <span class="nav-badge">1</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+
+    <!-- ════════════════════════════════════════════════
+         SCREEN: Dashboard Home
+    ════════════════════════════════════════════════ -->
+    <div class="screen active" id="screen-dash-home">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Construction Projects</div>
+          <div class="page-subtitle">CSI MasterFormat budgets · Live Profit-at-Completion · AI cost-code mapping</div>
+        </div>
+        <button class="btn btn-dark" onclick="showFlow('setup')">+ New Project</button>
+      </div>
+      <div class="projects-wrap">
+        <div class="projects-meta">Active Projects — 3</div>
+
+        <div class="project-card" onclick="showScreen('screen-project-detail')">
+          <div class="status-dot dot-yellow"></div>
+          <div class="proj-info">
+            <div class="proj-name">Camelback Commons – Phase 1</div>
+            <div class="proj-meta">Phoenix, AZ · SAM Construction Group · Est. completion Jun 15, 2025</div>
+          </div>
+          <div class="proj-progress">
+            <div class="prog-label">
+              <span>52% of budget spent</span>
+              <span class="warn-tag">⚠ Div 05</span>
+            </div>
+            <div class="prog-bar"><div class="prog-fill fill-y" style="width:52%"></div></div>
+          </div>
+          <div class="proj-amt">
+            <div class="amt-label">Actual / Budget</div>
+            <div class="amt-val">$487K / $941K</div>
+          </div>
+          <span class="pill pill-yellow">● Needs Review</span>
+        </div>
+
+        <div class="project-card">
+          <div class="status-dot dot-green"></div>
+          <div class="proj-info">
+            <div class="proj-name">Mesa Verde Office Park – Bldg B</div>
+            <div class="proj-meta">Scottsdale, AZ · SAM Construction Group · Est. completion Aug 30, 2025</div>
+          </div>
+          <div class="proj-progress">
+            <div class="prog-label"><span>28% of budget spent</span></div>
+            <div class="prog-bar"><div class="prog-fill fill-g" style="width:28%"></div></div>
+          </div>
+          <div class="proj-amt">
+            <div class="amt-label">Actual / Budget</div>
+            <div class="amt-val">$412K / $1.47M</div>
+          </div>
+          <span class="pill pill-green">● On Track</span>
+        </div>
+
+        <div class="project-card">
+          <div class="status-dot dot-red"></div>
+          <div class="proj-info">
+            <div class="proj-name">Phoenix Industrial Warehouse</div>
+            <div class="proj-meta">Phoenix, AZ · SAM Construction Group · Est. completion Mar 30, 2025</div>
+          </div>
+          <div class="proj-progress">
+            <div class="prog-label">
+              <span>89% of budget spent</span>
+              <span style="color:#EF4444;font-size:10px;font-weight:600;">Margin 1.1%</span>
+            </div>
+            <div class="prog-bar"><div class="prog-fill fill-r" style="width:89%"></div></div>
+          </div>
+          <div class="proj-amt">
+            <div class="amt-label">Actual / Budget</div>
+            <div class="amt-val">$2.1M / $2.36M</div>
+          </div>
+          <span class="pill pill-red">● Over Budget</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════
+         SCREEN: Project Detail
+    ════════════════════════════════════════════════ -->
+    <div class="screen" id="screen-project-detail">
+      <div class="page-header">
+        <div>
+          <div class="breadcrumb">
+            <span class="bc-link" onclick="showScreen('screen-dash-home')">Construction Projects</span>
+            <span>›</span>
+            <span>Camelback Commons – Phase 1</span>
+          </div>
+          <div class="page-title">Camelback Commons – Phase 1</div>
+          <div class="page-subtitle">Phoenix, AZ · Contract: $1,050,000 · Scheduled completion: Jun 15, 2025</div>
+        </div>
+        <span class="pill pill-yellow" style="font-size:12px;padding:6px 13px;">● Needs Review</span>
+      </div>
+
+      <div class="detail-wrap">
+        <!-- Metric cards -->
+        <div class="metric-row">
+          <div class="metric-card">
+            <div class="mc-label">Contract Value</div>
+            <div class="mc-value">$1,050,000</div>
+            <div class="mc-sub">Original contract</div>
+          </div>
+          <div class="metric-card">
+            <div class="mc-label">Total Actual Spend</div>
+            <div class="mc-value" id="mc-actual">$487,440</div>
+            <div class="mc-sub">52% of $941K budget</div>
+          </div>
+          <div class="metric-card">
+            <div class="mc-label">Budget Remaining</div>
+            <div class="mc-value" id="mc-remaining">$453,560</div>
+            <div class="mc-sub">across all divisions</div>
+          </div>
+        </div>
+
+        <!-- PCAC Banner -->
+        <div class="pcac-banner warning" id="pcac-card">
+          <div class="pcac-hdr">
+            <div class="pcac-title">📊 Profit-at-Completion Projection</div>
+            <span style="font-size:10px;color:#9CA3AF;">Recalculates live as spend posts — or edit a budget below</span>
+          </div>
+          <div class="pcac-grid">
+            <div>
+              <div class="pcac-m-label">Projected Cost at Completion</div>
+              <div class="pcac-m-value pv-warn" id="pv-pcac">—</div>
+            </div>
+            <div>
+              <div class="pcac-m-label">Contract Value</div>
+              <div class="pcac-m-value pv-normal">$1,050,000</div>
+            </div>
+            <div>
+              <div class="pcac-m-label">Projected Margin</div>
+              <div class="pcac-m-value pv-warn" id="pv-margin">—</div>
+            </div>
+            <div>
+              <div class="pcac-m-label">Bid Margin</div>
+              <div class="pcac-m-value pv-normal">10.4%</div>
+            </div>
+          </div>
+          <div class="pcac-alert warn" id="pcac-alert-box">
+            <span>⚠</span>
+            <span id="pcac-alert-text">Loading...</span>
+          </div>
+          <div class="edit-tip">💡 Click any budget amount in the table below to adjust it — the PCAC will recalculate instantly.</div>
+        </div>
+
+        <!-- CSI Table -->
+        <div class="table-card">
+          <div class="table-card-hdr">
+            <div class="table-card-title">CSI MasterFormat Budget · Division Detail</div>
+            <span class="ai-chip">✦ AI cost-code mapped at point of purchase</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Division</th>
+                <th class="r">Budget <span style="font-weight:400;color:#9CA3AF;">(click to edit)</span></th>
+                <th class="r">Actual</th>
+                <th class="r">Remaining</th>
+                <th class="r">Est. Complete</th>
+                <th class="r">PCAC</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="csi-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="action-bar">
+          <button class="btn btn-outline btn-sm" onclick="showScreen('screen-div-detail')">↓ Div 05 Transactions</button>
+          <button class="btn btn-outline btn-sm">⬇ Export for Owner Billing</button>
+          <button class="btn btn-outline btn-sm">+ Flag Change Order</button>
+          <button class="btn btn-outline btn-sm" onclick="showScreen('screen-dash-home')">← All Projects</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════
+         SCREEN: Division 05 Detail
+    ════════════════════════════════════════════════ -->
+    <div class="screen" id="screen-div-detail">
+      <div class="page-header">
+        <div>
+          <div class="breadcrumb">
+            <span class="bc-link" onclick="showScreen('screen-dash-home')">Construction Projects</span>
+            <span>›</span>
+            <span class="bc-link" onclick="showScreen('screen-project-detail')">Camelback Commons</span>
+            <span>›</span>
+            <span>Division 05 – Metals</span>
+          </div>
+          <div class="page-title">Division 05 – Metals</div>
+          <div class="page-subtitle">Camelback Commons · Budget: $185,000 · Actual: $113,800 · Est. 54% complete</div>
+        </div>
+        <span class="pill pill-yellow" style="font-size:12px;padding:6px 13px;">⚠ Trending Over</span>
+      </div>
+      <div class="detail-wrap">
+        <div class="ai-insight">
+          <span style="font-size:16px;">✦</span>
+          <div>
+            <strong>AI Insight:</strong> Steel purchases are running 22% above estimate. Most likely cause: tariff-driven price increases on rebar (March 2025 Section 232 increases — 25% on imported steel). At current burn rate, projected final cost for Div 05 is <strong>$210,741</strong> — <strong>$25,741 over budget</strong>. Consider initiating a change order or adjusting the division budget.
+            <span class="ai-chip" style="margin-left:8px;">✦ AI generated</span>
+          </div>
+        </div>
+
+        <div class="burn-card">
+          <div class="burn-title">Spend Velocity — Estimate vs. Actual ($K per week)</div>
+          <div class="bars-row">
+            <div class="bar-group">
+              <div class="bar-pair">
+                <div class="bar bar-est" style="height:28px"></div>
+                <div class="bar bar-ok" style="height:24px"></div>
+              </div>
+              <div class="bar-label">Wk 1</div>
+            </div>
+            <div class="bar-group">
+              <div class="bar-pair">
+                <div class="bar bar-est" style="height:34px"></div>
+                <div class="bar bar-ok" style="height:30px"></div>
+              </div>
+              <div class="bar-label">Wk 2</div>
+            </div>
+            <div class="bar-group">
+              <div class="bar-pair">
+                <div class="bar bar-est" style="height:30px"></div>
+                <div class="bar bar-ok" style="height:29px"></div>
+              </div>
+              <div class="bar-label">Wk 3</div>
+            </div>
+            <div class="bar-group">
+              <div class="bar-pair">
+                <div class="bar bar-est" style="height:32px"></div>
+                <div class="bar bar-warn" style="height:46px"></div>
+              </div>
+              <div class="bar-label">Wk 4</div>
+            </div>
+            <div class="bar-group">
+              <div class="bar-pair">
+                <div class="bar bar-est" style="height:34px"></div>
+                <div class="bar bar-over" style="height:56px"></div>
+              </div>
+              <div class="bar-label">Wk 5</div>
+            </div>
+            <div class="bar-group">
+              <div class="bar-pair">
+                <div class="bar bar-est" style="height:36px"></div>
+                <div class="bar bar-over" style="height:60px"></div>
+              </div>
+              <div class="bar-label">Wk 6</div>
+            </div>
+            <div class="bar-group">
+              <div class="bar-pair">
+                <div class="bar bar-est" style="height:32px"></div>
+                <div class="bar bar-proj" style="height:60px"></div>
+              </div>
+              <div class="bar-label">Wk 7 ↗</div>
+            </div>
+          </div>
+          <div class="legend-row">
+            <div class="legend-item"><div class="legend-dot" style="background:#E5E7EB"></div>Estimate</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#10B981"></div>Actual — on pace</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#EF4444"></div>Actual — over pace</div>
+            <div class="legend-item"><div class="legend-dot bar-proj"></div>Projected</div>
+          </div>
+        </div>
+
+        <div class="tx-list">
+          <div class="table-card-hdr" style="padding:12px 16px;">
+            <div class="table-card-title">Transactions — Division 05 Metals</div>
+          </div>
+          <div class="tx-item">
+            <div class="vendor-dot">NV</div>
+            <div class="tx-info">
+              <div class="tx-vendor">Nucor Virginia (Steel Distribution)</div>
+              <div class="tx-meta">Mar 14, 2025 · Mike Torres · Card ••4821 <span class="ai-chip">✦ AI mapped</span></div>
+            </div>
+            <div class="tx-amt">$18,420</div>
+          </div>
+          <div class="tx-item">
+            <div class="vendor-dot">CM</div>
+            <div class="tx-info">
+              <div class="tx-vendor">Commercial Metals Company</div>
+              <div class="tx-meta">Mar 10, 2025 · Mike Torres · Card ••4821 <span class="ai-chip">✦ AI mapped</span></div>
+            </div>
+            <div class="tx-amt">$24,100</div>
+          </div>
+          <div class="tx-item">
+            <div class="vendor-dot">ML</div>
+            <div class="tx-info">
+              <div class="tx-vendor">Metal Lath &amp; Steel Supply</div>
+              <div class="tx-meta">Mar 5, 2025 · James Wilson · Card ••2244 <span class="ai-chip">✦ AI mapped</span></div>
+            </div>
+            <div class="tx-amt">$9,840</div>
+          </div>
+          <div class="tx-item">
+            <div class="vendor-dot">RS</div>
+            <div class="tx-info">
+              <div class="tx-vendor">Republic Steel (Rebar &amp; Structural)</div>
+              <div class="tx-meta">Feb 28, 2025 · Mike Torres · Card ••4821 <span class="ai-chip">✦ AI mapped</span></div>
+            </div>
+            <div class="tx-amt">$31,200</div>
+          </div>
+          <div class="tx-item">
+            <div class="vendor-dot">SW</div>
+            <div class="tx-info">
+              <div class="tx-vendor">Southwest Steel Supply</div>
+              <div class="tx-meta">Feb 22, 2025 · Mike Torres · Card ••4821 <span class="ai-chip">✦ AI mapped</span></div>
+            </div>
+            <div class="tx-amt">$30,240</div>
+          </div>
+        </div>
+
+        <div class="action-bar">
+          <button class="btn btn-outline btn-sm" onclick="showScreen('screen-project-detail')">← Back to Project</button>
+          <button class="btn btn-outline btn-sm">+ Flag Change Order</button>
+          <button class="btn btn-outline btn-sm">⬇ Export</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════
+         SCREEN: Setup Wizard
+    ════════════════════════════════════════════════ -->
+    <div class="screen" id="screen-setup">
+      <div class="page-header">
+        <div>
+          <div class="page-title">New Construction Project Budget</div>
+          <div class="page-subtitle">Set up a CSI MasterFormat budget — no ERP pre-configuration required</div>
+        </div>
+      </div>
+      <div class="wizard-wrap">
+        <div class="wizard-steps" id="wizard-steps"></div>
+        <div id="wizard-body"></div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════
+         SCREEN: Field Worker
+    ════════════════════════════════════════════════ -->
+    <div class="screen" id="screen-fw">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Field Worker — SMS Receipt Capture</div>
+          <div class="page-subtitle">AI suggests the correct CSI division from merchant type at the moment of purchase — no manual lookup</div>
+        </div>
+      </div>
+      <div class="fw-wrap">
+        <!-- Phone -->
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="sms-hdr">
+              <div class="sms-avatar">R</div>
+              <div>
+                <div class="sms-contact">Ramp</div>
+                <div class="sms-subtext">Construction Budgets</div>
+              </div>
+            </div>
+            <div class="sms-body" id="sms-body"></div>
+            <div class="sms-input-row">
+              <input class="sms-input" id="sms-input" placeholder="Reply…" readonly>
+              <button class="sms-send" onclick="advanceSMS()">➤</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Explainer -->
+        <div class="fw-explainer">
+          <div class="exp-title">How It Works</div>
+          <div id="fw-steps"></div>
+          <div class="step-ctrl">
+            <button class="btn btn-green" id="sms-btn" onclick="advanceSMS()">Next Step →</button>
+            <button class="btn btn-outline" onclick="resetSMS()">Reset</button>
+          </div>
+          <div class="live-update" id="live-update">
+            <div class="lu-title">⚡ Live Budget Update</div>
+            <div style="font-size:12px;color:#6B7280;margin-bottom:8px;">Division 03 – Concrete · Camelback Commons</div>
+            <div class="lu-row"><span>Previous actual</span><span style="font-weight:600;">$172,140</span></div>
+            <div class="lu-row lu-new"><span>New actual (+$2,140)</span><span>$174,280</span></div>
+            <div class="lu-row"><span>Remaining</span><span style="font-weight:600;">$43,720</span></div>
+            <div class="lu-footer">PCAC recalculated automatically · Budget health: ✓ OK (76% consumed)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end main-content -->
+</div><!-- end app-shell -->
+
+<script>
+// ════════════════════════════════════════════════════════
+//  DATA
+// ════════════════════════════════════════════════════════
+const CONTRACT = 1050000;
+const BID_BUDGET = 941000;
+
+const divs = [
+  { code:'01', name:'General Requirements', budget:48000,  actual:38200,  pct:82 },
+  { code:'03', name:'Concrete',             budget:218000, actual:172140, pct:79 },
+  { code:'05', name:'Metals',               budget:185000, actual:113800, pct:54, flagged:true },
+  { code:'06', name:'Wood & Plastics',      budget:94000,  actual:61200,  pct:65 },
+  { code:'09', name:'Finishes',             budget:112000, actual:0,      pct:0  },
+  { code:'15', name:'Mechanical',           budget:156000, actual:58000,  pct:37 },
+  { code:'16', name:'Electrical',           budget:128000, actual:44100,  pct:35 },
+];
+
+function pcac(d) {
+  return d.pct === 0 ? d.budget : d.actual / (d.pct / 100);
+}
+function totals() {
+  return divs.reduce((a,d) => ({
+    budget: a.budget + d.budget,
+    actual: a.actual + d.actual,
+    pcac:   a.pcac + pcac(d)
+  }), {budget:0, actual:0, pcac:0});
+}
+function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
+
+// ════════════════════════════════════════════════════════
+//  ROUTING
+// ════════════════════════════════════════════════════════
+function showFlow(flow) {
+  ['dashboard','setup','fw'].forEach(f => {
+    document.getElementById('btn-' + f).classList.remove('active');
+  });
+  document.getElementById('btn-' + flow).classList.add('active');
+
+  if (flow === 'dashboard') {
+    showScreen('screen-dash-home');
+  } else if (flow === 'setup') {
+    showScreen('screen-setup');
+    wStep = 1; renderWizard();
+  } else if (flow === 'fw') {
+    showScreen('screen-fw');
+    resetSMS();
+  }
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'screen-project-detail') { renderCSI(); updatePCAC(); }
+}
+
+// ════════════════════════════════════════════════════════
+//  CSI TABLE
+// ════════════════════════════════════════════════════════
+function renderCSI() {
+  const t = totals();
+  let html = '';
+  divs.forEach((d, i) => {
+    const p = pcac(d);
+    const rem = d.budget - d.actual;
+    const over = p > d.budget;
+    const pctColor = d.pct >= 70 ? '#10B981' : '#6B7280';
+    html += `
+    <tr class="data-row" onclick="showScreen('screen-div-detail')">
+      <td>
+        <div class="div-name">Div ${d.code} – ${d.name}</div>
+      </td>
+      <td class="r">
+        <span class="edit-amt" onclick="event.stopPropagation();editBudget(${i},this)" title="Click to edit">${fmt(d.budget)}</span>
+      </td>
+      <td class="r">${fmt(d.actual)}</td>
+      <td class="r" style="color:${rem<0?'#EF4444':'#374151'}">${fmt(rem)}</td>
+      <td class="r">
+        <div class="pct-bar-wrap">
+          <div class="pct-bar-bg"><div class="pct-bar-fill" style="width:${Math.min(d.pct,100)}%;background:${pctColor}"></div></div>
+          <span>${d.pct}%</span>
+        </div>
+      </td>
+      <td class="r">
+        <span style="font-weight:600;color:${over?'#EF4444':'#374151'}">${fmt(p)}</span>
+        ${over ? `<div class="over-tag">+${fmt(p-d.budget)} projected</div>` : ''}
+        ${d.flagged ? '<div class="flag-tag">⚠ flagged</div>' : ''}
+      </td>
+      <td>
+        ${d.flagged ? '<button class="btn btn-outline btn-sm" onclick="event.stopPropagation()">CO</button>' : ''}
+      </td>
+    </tr>`;
+  });
+  html += `
+  <tr class="total-row">
+    <td>TOTAL</td>
+    <td class="r">${fmt(t.budget)}</td>
+    <td class="r">${fmt(t.actual)}</td>
+    <td class="r">${fmt(t.budget-t.actual)}</td>
+    <td class="r">—</td>
+    <td class="r" style="font-size:14px">${fmt(t.pcac)}</td>
+    <td></td>
+  </tr>`;
+  document.getElementById('csi-tbody').innerHTML = html;
+}
+
+function editBudget(i, el) {
+  const d = divs[i];
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.className = 'edit-input';
+  inp.value = d.budget.toString();
+  inp.onblur = () => saveBudget(i);
+  inp.onkeydown = e => { if (e.key==='Enter') inp.blur(); if (e.key==='Escape') { renderCSI(); updatePCAC(); } };
+  el.replaceWith(inp);
+  inp.focus(); inp.select();
+}
+
+function saveBudget(i) {
+  const inp = document.querySelector('.edit-input');
+  if (inp) {
+    const v = parseInt(inp.value.replace(/[^0-9]/g,''));
+    if (!isNaN(v) && v > 0) divs[i].budget = v;
+  }
+  renderCSI();
+  updatePCAC();
+}
+
+function updatePCAC() {
+  const t = totals();
+  const margin = (CONTRACT - t.pcac) / CONTRACT;
+  const pct = (margin * 100).toFixed(1);
+  const bidPct = ((CONTRACT - BID_BUDGET) / CONTRACT * 100).toFixed(1);
+
+  document.getElementById('pv-pcac').textContent = fmt(t.pcac);
+  document.getElementById('pv-margin').textContent = pct + '%';
+  document.getElementById('mc-actual').textContent = fmt(t.actual);
+  document.getElementById('mc-remaining').textContent = fmt(t.budget - t.actual);
+
+  const overDivs = divs.filter(d => pcac(d) > d.budget);
+  const card = document.getElementById('pcac-card');
+  const alertBox = document.getElementById('pcac-alert-box');
+  const alertText = document.getElementById('pcac-alert-text');
+  const pvPcac = document.getElementById('pv-pcac');
+  const pvMargin = document.getElementById('pv-margin');
+
+  if (overDivs.length > 0) {
+    card.className = 'pcac-banner warning';
+    alertBox.className = 'pcac-alert warn';
+    pvPcac.className = 'pcac-m-value pv-warn';
+    pvMargin.className = 'pcac-m-value pv-warn';
+    const desc = overDivs.map(d => `Div ${d.code} (${fmt(pcac(d)-d.budget)} over)`).join(' · ');
+    alertText.innerHTML = `${desc} — projected margin ${pct}% vs. bid margin ${bidPct}%`;
+  } else {
+    card.className = 'pcac-banner healthy';
+    alertBox.className = 'pcac-alert ok';
+    pvPcac.className = 'pcac-m-value pv-ok';
+    pvMargin.className = 'pcac-m-value pv-ok';
+    alertText.innerHTML = `✓ All divisions within budget · Projected margin ${pct}% · Bid was ${bidPct}%`;
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  WIZARD
+// ════════════════════════════════════════════════════════
+let wStep = 1;
+const W_LABELS = ['Project Details','Cost Structure','Division Budgets','Owners & Alerts'];
+const W_DIV_DEFAULTS = {
+  '01':48000,'03':218000,'05':185000,'06':94000,'09':112000,'15':156000,'16':128000
+};
+const W_DIVS = [
+  {code:'01',name:'General Requirements'},
+  {code:'03',name:'Concrete'},
+  {code:'05',name:'Metals'},
+  {code:'06',name:'Wood & Plastics'},
+  {code:'09',name:'Finishes'},
+  {code:'15',name:'Mechanical'},
+  {code:'16',name:'Electrical'},
+];
+
+function renderWizard() {
+  // Steps bar
+  let sHtml = '';
+  W_LABELS.forEach((lbl, i) => {
+    const n = i+1;
+    const done = n < wStep, active = n === wStep;
+    sHtml += `<div class="ws-item ${done?'done':''}">
+      <div class="ws-circle ${done?'done':active?'active':''}">${done?'✓':n}</div>
+      <span class="ws-label ${active?'active':''}">${lbl}</span>
+    </div>`;
+  });
+  document.getElementById('wizard-steps').innerHTML = sHtml;
+
+  // Card
+  let cHtml = '';
+  if (wStep === 1) {
+    cHtml = `<div class="wcard">
+      <div class="wcard-title">Project Details</div>
+      <div class="wcard-sub">Enter the basic information to set up your construction project budget.</div>
+      <div class="form-group"><label class="form-label">Project Name</label>
+        <input class="form-input" value="Camelback Commons – Phase 2"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Contract Value</label>
+          <input class="form-input" value="$1,050,000"></div>
+        <div class="form-group"><label class="form-label">Project Owner / GC</label>
+          <input class="form-input" value="SAM Construction Group"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Start Date</label>
+          <input class="form-input" value="Jul 1, 2025"></div>
+        <div class="form-group"><label class="form-label">Scheduled Completion</label>
+          <input class="form-input" value="Dec 15, 2025"></div>
+      </div>
+      <div class="wizard-footer">
+        <span></span>
+        <button class="btn btn-dark" onclick="wStep++;renderWizard()">Continue →</button>
+      </div>
+    </div>`;
+  } else if (wStep === 2) {
+    cHtml = `<div class="wcard">
+      <div class="wcard-title">Choose Cost Structure</div>
+      <div class="wcard-sub">How would you like to organize your project budget?</div>
+      <div class="tpl-options">
+        <div class="tpl-opt selected" id="tpl-csi" onclick="selectTpl('csi')">
+          <div class="tpl-badge">Recommended — No ERP required</div>
+          <div class="tpl-title">🏗 Ramp CSI MasterFormat Template</div>
+          <div class="tpl-desc">Pre-populated Division 01–16 hierarchy lives natively in Ramp. AI maps every card swipe to the right division at the point of purchase — no ERP pre-configuration needed.</div>
+        </div>
+        <div class="tpl-opt" id="tpl-procore" onclick="selectTpl('procore')">
+          <div class="tpl-title">↗ Import from Procore or ERP</div>
+          <div class="tpl-desc">Sync your existing WBS or Schedule of Values from Procore, Sage 300 CRE, Viewpoint Vista, or any connected ERP. Requires cost codes to be pre-configured in the source system.</div>
+        </div>
+      </div>
+      <div class="wizard-footer">
+        <button class="btn btn-outline" onclick="wStep--;renderWizard()">← Back</button>
+        <button class="btn btn-dark" onclick="wStep++;renderWizard()">Continue →</button>
+      </div>
+    </div>`;
+  } else if (wStep === 3) {
+    const rows = W_DIVS.map(d =>
+      `<div class="div-row">
+        <div class="div-badge">Div ${d.code}</div>
+        <div class="div-name-w">${d.name}</div>
+        <input class="div-input" value="$${W_DIV_DEFAULTS[d.code].toLocaleString()}" oninput="updateWTotal()">
+      </div>`
+    ).join('');
+    cHtml = `<div class="wcard">
+      <div class="wcard-title">Enter Division Budgets</div>
+      <div class="wcard-sub">Set the budget for each CSI division. Ramp will track spend and alert you as thresholds are approached.</div>
+      <div>${rows}</div>
+      <div class="budget-summary" id="w-summary">
+        Total Budget: <strong>$941,000</strong> · Contract Value: $1,050,000 · Bid Margin: <strong>10.4%</strong>
+      </div>
+      <div class="wizard-footer">
+        <button class="btn btn-outline" onclick="wStep--;renderWizard()">← Back</button>
+        <button class="btn btn-dark" onclick="wStep++;renderWizard()">Continue →</button>
+      </div>
+    </div>`;
+  } else if (wStep === 4) {
+    cHtml = `<div class="wcard">
+      <div class="wcard-title">Assign Owners &amp; Set Alerts</div>
+      <div class="wcard-sub">Division owners receive dashboard visibility and proactive SMS alerts when approaching their budget threshold.</div>
+      <div class="form-group"><label class="form-label">Project Finance Lead (receives PCAC alerts)</label>
+        <input class="form-input" value="James Hardy (CFO)"></div>
+      <div class="form-group"><label class="form-label">Division 05 – Metals Owner</label>
+        <input class="form-input" value="Mike Torres (Foreman)"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Warning Threshold</label>
+          <input class="form-input" value="75% of division budget consumed"></div>
+        <div class="form-group"><label class="form-label">Critical Threshold</label>
+          <input class="form-input" value="90% consumed OR PCAC exceeds budget"></div>
+      </div>
+      <div style="padding:11px 13px;background:#EFF6FF;border-radius:7px;font-size:12px;color:#1D4ED8;margin-top:4px;">
+        <strong>✦ AI-powered:</strong> Ramp auto-maps every card swipe to the right CSI division at point of purchase. No manual entry required by field workers.
+      </div>
+      <div class="wizard-footer">
+        <button class="btn btn-outline" onclick="wStep--;renderWizard()">← Back</button>
+        <button class="btn btn-green" onclick="wStep=5;renderWizard()">✓ Activate Project</button>
+      </div>
+    </div>`;
+  } else if (wStep === 5) {
+    cHtml = `<div class="wcard">
+      <div class="success-wrap">
+        <div class="success-icon">✓</div>
+        <div class="success-title">Project Budget Activated!</div>
+        <div class="success-sub">Camelback Commons – Phase 2 is live. PCAC projection will begin calculating as the first transactions post. Division owners have been notified via SMS.</div>
+        <button class="btn btn-dark" onclick="showFlow('dashboard')">View All Projects →</button>
+      </div>
+    </div>`;
+    // Hide steps bar on success
+    document.getElementById('wizard-steps').innerHTML = '';
+  }
+  document.getElementById('wizard-body').innerHTML = cHtml;
+}
+
+function selectTpl(id) {
+  document.querySelectorAll('.tpl-opt').forEach(el => el.classList.remove('selected'));
+  document.getElementById('tpl-' + id).classList.add('selected');
+}
+
+function updateWTotal() {
+  const inputs = document.querySelectorAll('.div-input');
+  let total = 0;
+  inputs.forEach(inp => { total += parseInt(inp.value.replace(/[^0-9]/g,'')) || 0; });
+  const margin = ((CONTRACT - total) / CONTRACT * 100).toFixed(1);
+  const s = document.getElementById('w-summary');
+  if (s) s.innerHTML = `Total Budget: <strong>${fmt(total)}</strong> · Contract Value: ${fmt(CONTRACT)} · Bid Margin: <strong>${margin}%</strong>`;
+}
+
+// ════════════════════════════════════════════════════════
+//  SMS FIELD WORKER FLOW
+// ════════════════════════════════════════════════════════
+let smsStep = 0;
+
+const SMS_STEPS = [
+  // 0 — Initial: Ramp sends receipt request
+  [{ who:'ramp', html:'Receipt needed for <strong>$2,140</strong> at <strong>Vulcan Materials</strong>.<br><br>Reply with a photo of your receipt.' }],
+  // 1 — Worker sends photo
+  [
+    { who:'ramp', html:'Receipt needed for <strong>$2,140</strong> at <strong>Vulcan Materials</strong>.<br><br>Reply with a photo of your receipt.' },
+    { who:'worker', photo:true },
+  ],
+  // 2 — AI suggests CSI code
+  [
+    { who:'ramp', html:'Receipt needed for <strong>$2,140</strong> at <strong>Vulcan Materials</strong>.<br><br>Reply with a photo of your receipt.' },
+    { who:'worker', photo:true },
+    { who:'ramp', isAI:true, html:'<span class="ai-chip" style="font-size:11px;padding:3px 8px;margin-bottom:6px;display:inline-flex;">✦ AI</span><br><strong>Vulcan Materials</strong> — aggregate &amp; quarry supplier<br><br>→ <strong>Division 03 – Concrete</strong>, $2,140<br><br>Reply <strong>Y</strong> to confirm, or send a different division code.' },
+  ],
+  // 3 — Worker confirms
+  [
+    { who:'ramp', html:'Receipt needed for <strong>$2,140</strong> at <strong>Vulcan Materials</strong>.<br><br>Reply with a photo of your receipt.' },
+    { who:'worker', photo:true },
+    { who:'ramp', isAI:true, html:'<span class="ai-chip" style="font-size:11px;padding:3px 8px;margin-bottom:6px;display:inline-flex;">✦ AI</span><br><strong>Vulcan Materials</strong> — aggregate &amp; quarry supplier<br><br>→ <strong>Division 03 – Concrete</strong>, $2,140<br><br>Reply <strong>Y</strong> to confirm, or send a different division code.' },
+    { who:'worker', html:'Y' },
+    { who:'ramp', isConfirm:true, html:'✓ Posted to <strong>Division 03 – Concrete</strong><br><br><strong>Camelback Commons – Phase 1</strong><br>Div 03 Actual: $174,280 · $43,720 remaining<br>Budget health: ✓ OK<br><br>PCAC projection updated.' },
+  ],
+];
+
+const FW_STEPS = [
+  { title:'Card Swipe', body:'Mike Torres swipes his Ramp card at Vulcan Materials for $2,140 in concrete aggregate.' },
+  { title:'Ramp Sends Receipt Request', body:'Ramp automatically sends an SMS receipt request to the field worker. No app required.' },
+  { title:'AI Reads Receipt &amp; Suggests CSI Code', body:'Ramp AI identifies Vulcan Materials as an aggregate/quarry supplier and suggests <strong>Division 03 – Concrete</strong>.' },
+  { title:'Worker Confirms — Budget Updates Live', body:'Mike replies "Y". Transaction posts to Div 03 in real time. PCAC projection recalculates instantly.' },
+];
+
+const BTN_LABELS = [
+  'Worker replies with receipt photo →',
+  'Ramp AI analyzes &amp; suggests CSI code →',
+  'Worker confirms "Y" →',
+  '✓ Complete',
+];
+
+function renderSMS() {
+  const msgs = SMS_STEPS[Math.min(smsStep, SMS_STEPS.length - 1)];
+  let html = '<div class="sms-ts">Today 9:42 AM</div>';
+  msgs.forEach(m => {
+    if (m.who === 'ramp') {
+      const bg = m.isConfirm ? 'confirm-bg' : m.isAI ? 'ai-bg' : '';
+      html += `<div class="bubble bubble-ramp ${bg}">${m.html}</div>`;
+    } else if (m.photo) {
+      html += `<div class="bubble" style="align-self:flex-end;padding:0;background:transparent;border:none;">
+        <div class="receipt-photo">📄<br>receipt_vulcan.jpg<br><span style="font-size:9px;">Sent</span></div>
+      </div>`;
+    } else {
+      html += `<div class="bubble bubble-worker">${m.html}</div>`;
+    }
+  });
+  const body = document.getElementById('sms-body');
+  body.innerHTML = html;
+  body.scrollTop = 9999;
+
+  // Explainer steps
+  let sHtml = '';
+  FW_STEPS.forEach((s, i) => {
+    const on = i <= smsStep;
+    sHtml += `<div class="flow-step ${on?'on':''}">
+      <div class="fs-num">${i+1}</div>
+      <div class="fs-text"><strong>${s.title}</strong><br>${s.body}</div>
+    </div>`;
+  });
+  document.getElementById('fw-steps').innerHTML = sHtml;
+
+  // Live update panel
+  const lu = document.getElementById('live-update');
+  lu.style.display = smsStep >= SMS_STEPS.length - 1 ? 'block' : 'none';
+
+  // Button
+  const btn = document.getElementById('sms-btn');
+  const done = smsStep >= SMS_STEPS.length - 1;
+  btn.disabled = done;
+  btn.style.opacity = done ? '0.45' : '1';
+  btn.innerHTML = done ? BTN_LABELS[3] : BTN_LABELS[smsStep];
+}
+
+function advanceSMS() {
+  if (smsStep < SMS_STEPS.length - 1) { smsStep++; renderSMS(); }
+}
+function resetSMS() { smsStep = 0; renderSMS(); }
+
+// ════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════
+showFlow('dashboard');
+</script>
+</body>
+</html>
