@@ -793,7 +793,7 @@
             <button class="btn btn-dark" onclick="showFlow('setup')">+ New Project</button>
           </div>
 
-          <div class="project-card" onclick="showScreen('screen-project-detail')">
+          <div class="project-card" onclick="showProject(0)">
             <div class="status-dot dot-yellow"></div>
             <div class="proj-info">
               <div class="proj-name">Camelback Commons – Phase 1</div>
@@ -813,7 +813,7 @@
             <span class="pill pill-yellow">● Needs Review</span>
           </div>
 
-          <div class="project-card" onclick="showScreen('screen-project-detail')">
+          <div class="project-card" onclick="showProject(1)">
             <div class="status-dot dot-green"></div>
             <div class="proj-info">
               <div class="proj-name">Mesa Verde Office Park – Bldg B</div>
@@ -830,7 +830,7 @@
             <span class="pill pill-green">● On Track</span>
           </div>
 
-          <div class="project-card" onclick="showScreen('screen-project-detail')">
+          <div class="project-card" onclick="showProject(2)">
             <div class="status-dot dot-red"></div>
             <div class="proj-info">
               <div class="proj-name">Phoenix Industrial Warehouse</div>
@@ -864,12 +864,12 @@
             <span>›</span>
             <span class="bc-link" onclick="showTab('construction')">Construction Projects</span>
             <span>›</span>
-            <span>Camelback Commons – Phase 1</span>
+            <span id="detail-bc-name">Camelback Commons – Phase 1</span>
           </div>
-          <div class="page-title">Camelback Commons – Phase 1</div>
-          <div class="page-subtitle">Phoenix, AZ · Contract: $1,050,000 · Scheduled completion: Jun 15, 2026</div>
+          <div class="page-title" id="detail-title">Camelback Commons – Phase 1</div>
+          <div class="page-subtitle" id="detail-subtitle">Phoenix, AZ · Contract: $1,050,000 · Scheduled completion: Jun 15, 2026</div>
         </div>
-        <span class="pill pill-yellow" style="font-size:12px;padding:6px 13px;">● Needs Review</span>
+        <span class="pill pill-yellow" style="font-size:12px;padding:6px 13px;" id="detail-status">● Needs Review</span>
       </div>
 
       <div class="detail-wrap">
@@ -877,13 +877,13 @@
         <div class="metric-row">
           <div class="metric-card">
             <div class="mc-label">Contract Value</div>
-            <div class="mc-value">$1,050,000</div>
+            <div class="mc-value" id="detail-contract">$1,050,000</div>
             <div class="mc-sub">Original contract</div>
           </div>
           <div class="metric-card">
             <div class="mc-label">Total Actual Spend</div>
             <div class="mc-value" id="mc-actual">$487,440</div>
-            <div class="mc-sub">52% of $941K budget</div>
+            <div class="mc-sub" id="detail-actual-sub">52% of $941K budget</div>
           </div>
           <div class="metric-card">
             <div class="mc-label">Budget Remaining</div>
@@ -905,7 +905,7 @@
             </div>
             <div>
               <div class="pcac-m-label">Contract Value</div>
-              <div class="pcac-m-value pv-normal">$1,050,000</div>
+              <div class="pcac-m-value pv-normal" id="detail-pcac-contract">$1,050,000</div>
             </div>
             <div>
               <div class="pcac-m-label">Projected Margin</div>
@@ -913,7 +913,7 @@
             </div>
             <div>
               <div class="pcac-m-label">Bid Margin</div>
-              <div class="pcac-m-value pv-normal">10.4%</div>
+              <div class="pcac-m-value pv-normal" id="detail-pcac-bid-margin">10.4%</div>
             </div>
           </div>
           <div class="pcac-alert warn" id="pcac-alert-box">
@@ -1171,18 +1171,56 @@
 //  DATA
 // ════════════════════════════════════════════════════════
 
-const CONTRACT = 1050000;
-const BID_BUDGET = 941000;
-
-const divs = [
-  { code:'01', name:'General Requirements', budget:48000,  actual:38200,  pct:82 },
-  { code:'03', name:'Concrete',             budget:218000, actual:172140, pct:79 },
-  { code:'05', name:'Metals',               budget:185000, actual:113800, pct:54, flagged:true },
-  { code:'06', name:'Wood & Plastics',      budget:94000,  actual:61200,  pct:65 },
-  { code:'09', name:'Finishes',             budget:112000, actual:0,      pct:0  },
-  { code:'15', name:'Mechanical',           budget:156000, actual:58000,  pct:37 },
-  { code:'16', name:'Electrical',           budget:128000, actual:44100,  pct:35 },
+const PROJECTS = [
+  {
+    name: 'Camelback Commons – Phase 1',
+    location: 'Phoenix, AZ', gc: 'SAM Construction Group',
+    completion: 'Jun 15, 2026', contract: 1050000, bidBudget: 941000,
+    statusClass: 'pill-yellow', statusText: '● Needs Review',
+    divs: [
+      { code:'01', name:'General Requirements', budget:48000,  actual:38200,  pct:82 },
+      { code:'03', name:'Concrete',             budget:218000, actual:172140, pct:79 },
+      { code:'05', name:'Metals',               budget:185000, actual:113800, pct:54, flagged:true },
+      { code:'06', name:'Wood & Plastics',      budget:94000,  actual:61200,  pct:65 },
+      { code:'09', name:'Finishes',             budget:112000, actual:0,      pct:0  },
+      { code:'15', name:'Mechanical',           budget:156000, actual:58000,  pct:37 },
+      { code:'16', name:'Electrical',           budget:128000, actual:44100,  pct:35 },
+    ]
+  },
+  {
+    name: 'Mesa Verde Office Park – Bldg B',
+    location: 'Scottsdale, AZ', gc: 'SAM Construction Group',
+    completion: 'Aug 30, 2026', contract: 1470000, bidBudget: 1320000,
+    statusClass: 'pill-green', statusText: '● On Track',
+    divs: [
+      { code:'01', name:'General Requirements', budget:68000,  actual:45200,  pct:66 },
+      { code:'03', name:'Concrete',             budget:285000, actual:78000,  pct:27 },
+      { code:'05', name:'Metals',               budget:210000, actual:51000,  pct:24 },
+      { code:'06', name:'Wood & Plastics',      budget:142000, actual:38000,  pct:27 },
+      { code:'09', name:'Finishes',             budget:180000, actual:0,      pct:0  },
+      { code:'15', name:'Mechanical',           budget:240000, actual:102000, pct:42 },
+      { code:'16', name:'Electrical',           budget:195000, actual:98000,  pct:50 },
+    ]
+  },
+  {
+    name: 'Phoenix Industrial Warehouse',
+    location: 'Phoenix, AZ', gc: 'SAM Construction Group',
+    completion: 'Mar 30, 2026', contract: 2580000, bidBudget: 2360000,
+    statusClass: 'pill-red', statusText: '● Over Budget',
+    divs: [
+      { code:'01', name:'General Requirements', budget:106000, actual:98200,  pct:88 },
+      { code:'03', name:'Concrete',             budget:380000, actual:365000, pct:91, flagged:true },
+      { code:'05', name:'Metals',               budget:720000, actual:695000, pct:87, flagged:true },
+      { code:'06', name:'Wood & Plastics',      budget:95000,  actual:92000,  pct:94 },
+      { code:'09', name:'Finishes',             budget:310000, actual:241000, pct:73 },
+      { code:'15', name:'Mechanical',           budget:420000, actual:365000, pct:85 },
+      { code:'16', name:'Electrical',           budget:329000, actual:244000, pct:71 },
+    ]
+  }
 ];
+
+let currentProjectIdx = 0;
+let divs = PROJECTS[0].divs.map(d => ({...d}));
 
 function pcac(d) {
   return d.pct === 0 ? d.budget : d.actual / (d.pct / 100);
@@ -1199,6 +1237,27 @@ function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
 // ════════════════════════════════════════════════════════
 //  ROUTING & TAB SWITCHING
 // ════════════════════════════════════════════════════════
+function showProject(idx) {
+  currentProjectIdx = idx;
+  const p = PROJECTS[idx];
+  // Deep-copy divs so edits don't mutate the source data
+  divs = p.divs.map(d => ({...d}));
+
+  // Header text
+  document.getElementById('detail-bc-name').textContent = p.name;
+  document.getElementById('detail-title').textContent = p.name;
+  document.getElementById('detail-subtitle').textContent =
+    `${p.location} · Contract: ${fmt(p.contract)} · Scheduled completion: ${p.completion}`;
+
+  // Status pill
+  const pill = document.getElementById('detail-status');
+  pill.className = `pill ${p.statusClass}`;
+  pill.style.cssText = 'font-size:12px;padding:6px 13px;';
+  pill.textContent = p.statusText;
+
+  showScreen('screen-project-detail');
+}
+
 function showFlow(flow) {
   ['dashboard','setup','fw'].forEach(f => {
     document.getElementById('btn-' + f).classList.remove('active');
@@ -1312,10 +1371,21 @@ function saveBudget(i) {
 }
 
 function updatePCAC() {
+  const p = PROJECTS[currentProjectIdx];
+  const CONTRACT = p.contract;
+  const BID_BUDGET = p.bidBudget;
   const t = totals();
   const margin = (CONTRACT - t.pcac) / CONTRACT;
   const pct = (margin * 100).toFixed(1);
   const bidPct = ((CONTRACT - BID_BUDGET) / CONTRACT * 100).toFixed(1);
+  const budgetPct = t.budget > 0 ? Math.round(t.actual / t.budget * 100) : 0;
+  const budgetK = Math.round(t.budget / 1000);
+
+  // Update static contract/bid-margin display
+  document.getElementById('detail-pcac-contract').textContent = fmt(CONTRACT);
+  document.getElementById('detail-pcac-bid-margin').textContent = bidPct + '%';
+  document.getElementById('detail-contract').textContent = fmt(CONTRACT);
+  document.getElementById('detail-actual-sub').textContent = `${budgetPct}% of $${budgetK}K budget`;
 
   document.getElementById('pv-pcac').textContent = fmt(t.pcac);
   document.getElementById('pv-margin').textContent = pct + '%';
@@ -1540,7 +1610,7 @@ function injectNewProjectCard() {
   const card = document.createElement('div');
   card.id = 'new-injected-project';
   card.className = 'project-card';
-  card.onclick = () => showScreen('screen-project-detail');
+  card.onclick = () => showProject(0); // new projects default to Camelback data as placeholder
   card.innerHTML = `
     <div class="status-dot dot-green"></div>
     <div class="proj-info">
@@ -1584,9 +1654,10 @@ function updateWTotal() {
   const inputs = document.querySelectorAll('.div-input');
   let total = 0;
   inputs.forEach(inp => { total += parseInt(inp.value.replace(/[^0-9]/g,'')) || 0; });
-  const margin = ((CONTRACT - total) / CONTRACT * 100).toFixed(1);
+  const wContract = parseInt((wProjectData.contract || '$1,050,000').replace(/[^0-9]/g,'')) || 1050000;
+  const margin = ((wContract - total) / wContract * 100).toFixed(1);
   const s = document.getElementById('w-summary');
-  if (s) s.innerHTML = `Total Budget: <strong>${fmt(total)}</strong> · Contract Value: ${fmt(CONTRACT)} · Bid Margin: <strong>${margin}%</strong>`;
+  if (s) s.innerHTML = `Total Budget: <strong>${fmt(total)}</strong> · Contract Value: ${fmt(wContract)} · Bid Margin: <strong>${margin}%</strong>`;
 }
 
 // ════════════════════════════════════════════════════════
