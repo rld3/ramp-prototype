@@ -378,13 +378,15 @@
 
     .overview-main { display: grid; grid-template-columns: 280px 1fr; gap: 24px; margin-bottom: 24px; }
     .donut-section { background: white; border: 1px solid #E5E7EB; border-radius: 10px; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+    .donut-wrap { position: relative; width: 180px; height: 180px; flex-shrink: 0; }
+    .donut-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; }
     .budget-stats { width: 100%; margin-top: 16px; }
     .stat-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 13px; }
     .stat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .stat-label { color: #6B7280; flex: 1; }
     .stat-val { font-weight: 600; color: #111827; }
 
-    .chart-section { background: white; border: 1px solid #E5E7EB; border-radius: 10px; padding: 20px; }
+    .chart-section { background: white; border: 1px solid #E5E7EB; border-radius: 10px; padding: 20px; display: flex; flex-direction: column; }
     .chart-count { font-size: 11px; color: #9CA3AF; text-align: right; margin-bottom: 12px; }
 
     /* Alert items */
@@ -485,13 +487,15 @@
           <div class="overview-main">
             <!-- LEFT: Donut Chart -->
             <div class="donut-section">
-              <svg width="180" height="180" viewBox="0 0 180 180" style="transform: rotate(-90deg);">
-                <circle cx="90" cy="90" r="70" fill="none" stroke="#E5E7EB" stroke-width="18" />
-                <circle cx="90" cy="90" r="70" fill="none" stroke="#059669" stroke-width="18" stroke-dasharray="258.3 436.3" />
-              </svg>
-              <div style="position: absolute; margin-top: -70px; text-align: center;">
-                <div style="font-size: 28px; font-weight: 700; color: #111827;">59%</div>
-                <div style="font-size: 12px; color: #6B7280;">Spent</div>
+              <div class="donut-wrap">
+                <svg width="180" height="180" viewBox="0 0 180 180" style="transform: rotate(-90deg);">
+                  <circle cx="90" cy="90" r="70" fill="none" stroke="#E5E7EB" stroke-width="18" />
+                  <circle cx="90" cy="90" r="70" fill="none" stroke="#059669" stroke-width="18" stroke-dasharray="258.3 436.3" />
+                </svg>
+                <div class="donut-label">
+                  <div style="font-size: 28px; font-weight: 700; color: #111827;">59%</div>
+                  <div style="font-size: 12px; color: #6B7280;">Spent</div>
+                </div>
               </div>
 
               <div class="budget-stats">
@@ -516,7 +520,7 @@
             <!-- RIGHT: Monthly Bar Chart -->
             <div class="chart-section">
               <div class="chart-count">12-month actuals · 2025</div>
-              <svg width="100%" height="140" viewBox="0 0 480 140" style="max-width: 100%;">
+              <svg width="100%" viewBox="0 0 480 140" preserveAspectRatio="none" style="flex: 1; min-height: 0; display: block;">
                 <!-- Y-axis labels -->
                 <text x="35" y="125" font-size="10" fill="#9CA3AF" text-anchor="end">$0</text>
                 <text x="35" y="85" font-size="10" fill="#9CA3AF" text-anchor="end">$50K</text>
