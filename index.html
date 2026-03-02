@@ -359,6 +359,48 @@
     .lu-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
     .lu-new { color: #059669; font-weight: 700; }
     .lu-footer { font-size: 10px; color: #9CA3AF; margin-top: 8px; }
+
+    /* ══════════════════════════════════════════════════
+       NEW: TAB BAR & BUDGETS SECTION
+    ══════════════════════════════════════════════════ */
+    .tab-bar { display: flex; border-bottom: 2px solid #E5E7EB; background: white; padding: 0 28px; margin-bottom: 0; }
+    .tab-btn { padding: 14px 18px; font-size: 13px; font-weight: 500; color: #6B7280; cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; white-space: nowrap; }
+    .tab-btn:hover { color: #111827; }
+    .tab-btn.active { color: #111827; border-bottom-color: #111827; font-weight: 600; }
+
+    /* Overview */
+    .overview-wrap { padding: 20px 28px; }
+    .overview-filters { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+    .time-btn { padding: 6px 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 12px; background: white; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .vf-pills { display: flex; background: #F3F4F6; border-radius: 6px; padding: 2px; gap: 2px; margin-left: auto; }
+    .vf-pill { padding: 5px 12px; border-radius: 5px; font-size: 12px; font-weight: 500; cursor: pointer; color: #6B7280; border: none; background: transparent; }
+    .vf-pill.active { background: white; color: #111827; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+    .overview-main { display: grid; grid-template-columns: 280px 1fr; gap: 24px; margin-bottom: 24px; }
+    .donut-section { background: white; border: 1px solid #E5E7EB; border-radius: 10px; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+    .budget-stats { width: 100%; margin-top: 16px; }
+    .stat-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 13px; }
+    .stat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .stat-label { color: #6B7280; flex: 1; }
+    .stat-val { font-weight: 600; color: #111827; }
+
+    .chart-section { background: white; border: 1px solid #E5E7EB; border-radius: 10px; padding: 20px; }
+    .chart-count { font-size: 11px; color: #9CA3AF; text-align: right; margin-bottom: 12px; }
+
+    /* Alert items */
+    .budget-alert-list { background: white; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; }
+    .budget-alert-row { display: flex; align-items: flex-start; gap: 12px; padding: 14px 20px; border-bottom: 1px solid #F3F4F6; }
+    .budget-alert-row:last-child { border-bottom: none; }
+    .alert-icon { width: 32px; height: 32px; border-radius: 50%; background: #FEF3C7; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+    .alert-icon.red { background: #FEE2E2; }
+    .alert-body { flex: 1; font-size: 13px; }
+    .alert-title { font-weight: 600; color: #111827; margin-bottom: 3px; }
+    .alert-sub { font-size: 11px; color: #6B7280; }
+    .alert-link { color: #059669; cursor: pointer; }
+    .alert-arrow { color: #9CA3AF; font-size: 16px; }
+
+    /* Actuals/Committed tables */
+    .tab-table-wrap { padding: 20px 28px; }
   </style>
 </head>
 <body>
@@ -391,7 +433,7 @@
       <div class="nav-item">
         <span class="nav-icon">↗</span> Spend
       </div>
-      <div class="nav-item" id="nav-budgets" onclick="showFlow('dashboard')">
+      <div class="nav-item active" id="nav-budgets" onclick="showFlow('dashboard')">
         <span class="nav-icon">◎</span> Budgets
       </div>
       <div class="nav-item">
@@ -400,11 +442,6 @@
       <div class="nav-item">
         <span class="nav-icon">↩</span> Reimbursements
       </div>
-      <div class="nav-section">Construction ✦ New</div>
-      <div class="nav-item active" id="nav-projects" onclick="showFlow('dashboard')">
-        <span class="nav-icon">🏗</span> Projects
-        <span class="nav-badge">1</span>
-      </div>
     </div>
   </div>
 
@@ -412,74 +449,391 @@
   <div class="main-content">
 
     <!-- ════════════════════════════════════════════════
-         SCREEN: Dashboard Home
+         SCREEN: Budgets Dashboard
     ════════════════════════════════════════════════ -->
     <div class="screen active" id="screen-dash-home">
       <div class="page-header">
         <div>
-          <div class="page-title">Construction Projects</div>
-          <div class="page-subtitle">CSI MasterFormat budgets · Live Profit-at-Completion · AI cost-code mapping</div>
+          <div class="page-title">Budgets</div>
+          <div class="page-subtitle">Manage spend across all active budgets and construction projects</div>
         </div>
-        <button class="btn btn-dark" onclick="showFlow('setup')">+ New Project</button>
       </div>
-      <div class="projects-wrap">
-        <div class="projects-meta">Active Projects — 3</div>
 
-        <div class="project-card" onclick="showScreen('screen-project-detail')">
-          <div class="status-dot dot-yellow"></div>
-          <div class="proj-info">
-            <div class="proj-name">Camelback Commons – Phase 1</div>
-            <div class="proj-meta">Phoenix, AZ · SAM Construction Group · Est. completion Jun 15, 2025</div>
-          </div>
-          <div class="proj-progress">
-            <div class="prog-label">
-              <span>52% of budget spent</span>
-              <span class="warn-tag">⚠ Div 05</span>
+      <!-- Tab Bar -->
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+        <button class="tab-btn" onclick="showTab('actuals')">Actuals</button>
+        <button class="tab-btn" onclick="showTab('committed')">Committed</button>
+        <button class="tab-btn" onclick="showTab('construction')">Construction Projects</button>
+      </div>
+
+      <!-- OVERVIEW TAB -->
+      <div id="tab-overview" class="tab-content">
+        <div class="overview-wrap">
+          <!-- Filter row -->
+          <div class="overview-filters">
+            <button class="time-btn">⏱ Time period · Full budget period</button>
+            <div class="vf-pills">
+              <button class="vf-pill active">[All]</button>
+              <button class="vf-pill">[Over budget]</button>
+              <button class="vf-pill">[My budgets]</button>
             </div>
-            <div class="prog-bar"><div class="prog-fill fill-y" style="width:52%"></div></div>
+            <button class="btn btn-outline btn-sm" style="margin-left: 12px;">↗ View reports</button>
           </div>
-          <div class="proj-amt">
-            <div class="amt-label">Actual / Budget</div>
-            <div class="amt-val">$487K / $941K</div>
-          </div>
-          <span class="pill pill-yellow">● Needs Review</span>
-        </div>
 
-        <div class="project-card">
-          <div class="status-dot dot-green"></div>
-          <div class="proj-info">
-            <div class="proj-name">Mesa Verde Office Park – Bldg B</div>
-            <div class="proj-meta">Scottsdale, AZ · SAM Construction Group · Est. completion Aug 30, 2025</div>
-          </div>
-          <div class="proj-progress">
-            <div class="prog-label"><span>28% of budget spent</span></div>
-            <div class="prog-bar"><div class="prog-fill fill-g" style="width:28%"></div></div>
-          </div>
-          <div class="proj-amt">
-            <div class="amt-label">Actual / Budget</div>
-            <div class="amt-val">$412K / $1.47M</div>
-          </div>
-          <span class="pill pill-green">● On Track</span>
-        </div>
+          <!-- Main content: Donut + Bar chart -->
+          <div class="overview-main">
+            <!-- LEFT: Donut Chart -->
+            <div class="donut-section">
+              <svg width="180" height="180" viewBox="0 0 180 180" style="transform: rotate(-90deg);">
+                <circle cx="90" cy="90" r="70" fill="none" stroke="#E5E7EB" stroke-width="18" />
+                <circle cx="90" cy="90" r="70" fill="none" stroke="#059669" stroke-width="18" stroke-dasharray="258.3 436.3" />
+              </svg>
+              <div style="position: absolute; margin-top: -70px; text-align: center;">
+                <div style="font-size: 28px; font-weight: 700; color: #111827;">59%</div>
+                <div style="font-size: 12px; color: #6B7280;">Spent</div>
+              </div>
 
-        <div class="project-card">
-          <div class="status-dot dot-red"></div>
-          <div class="proj-info">
-            <div class="proj-name">Phoenix Industrial Warehouse</div>
-            <div class="proj-meta">Phoenix, AZ · SAM Construction Group · Est. completion Mar 30, 2025</div>
-          </div>
-          <div class="proj-progress">
-            <div class="prog-label">
-              <span>89% of budget spent</span>
-              <span style="color:#EF4444;font-size:10px;font-weight:600;">Margin 1.1%</span>
+              <div class="budget-stats">
+                <div class="stat-row">
+                  <div class="stat-dot" style="background: #6B7280;"></div>
+                  <div class="stat-label">Total budget</div>
+                  <div class="stat-val">$5,200,000</div>
+                </div>
+                <div class="stat-row">
+                  <div class="stat-dot" style="background: #059669;"></div>
+                  <div class="stat-label">Actuals</div>
+                  <div class="stat-val">$3,086,540</div>
+                </div>
+                <div class="stat-row">
+                  <div class="stat-dot" style="border: 2px dashed #9CA3AF; background: transparent;"></div>
+                  <div class="stat-label">Committed</div>
+                  <div class="stat-val">$309,037</div>
+                </div>
+              </div>
             </div>
-            <div class="prog-bar"><div class="prog-fill fill-r" style="width:89%"></div></div>
+
+            <!-- RIGHT: Monthly Bar Chart -->
+            <div class="chart-section">
+              <div class="chart-count">12-month actuals · 2025</div>
+              <svg width="100%" height="140" viewBox="0 0 480 140" style="max-width: 100%;">
+                <!-- Y-axis labels -->
+                <text x="35" y="125" font-size="10" fill="#9CA3AF" text-anchor="end">$0</text>
+                <text x="35" y="85" font-size="10" fill="#9CA3AF" text-anchor="end">$50K</text>
+                <text x="35" y="45" font-size="10" fill="#9CA3AF" text-anchor="end">$100K</text>
+
+                <!-- Y-axis line -->
+                <line x1="40" y1="20" x2="40" y2="125" stroke="#E5E7EB" stroke-width="1" />
+                <!-- X-axis line -->
+                <line x1="40" y1="125" x2="480" y2="125" stroke="#E5E7EB" stroke-width="1" />
+
+                <!-- Grid lines -->
+                <line x1="40" y1="85" x2="480" y2="85" stroke="#F3F4F6" stroke-width="1" stroke-dasharray="2,2" />
+                <line x1="40" y1="45" x2="480" y2="45" stroke="#F3F4F6" stroke-width="1" stroke-dasharray="2,2" />
+
+                <!-- Bars for each month (Jan-Dec) with actuals data -->
+                <!-- Jan: $5.5K -->
+                <rect x="50" y="116" width="4" height="9" fill="#D1D5DB" />
+                <rect x="55" y="116" width="4" height="9" fill="#9CA3AF" />
+                <rect x="60" y="115" width="4" height="10" fill="#059669" />
+                <text x="58" y="135" font-size="9" fill="#9CA3AF" text-anchor="middle">$5.5K</text>
+
+                <!-- Feb: $21K -->
+                <rect x="72" y="113" width="4" height="12" fill="#D1D5DB" />
+                <rect x="77" y="113" width="4" height="12" fill="#9CA3AF" />
+                <rect x="82" y="103" width="4" height="22" fill="#059669" />
+                <text x="80" y="135" font-size="9" fill="#9CA3AF" text-anchor="middle">$21K</text>
+
+                <!-- Mar: $22K -->
+                <rect x="94" y="112" width="4" height="13" fill="#D1D5DB" />
+                <rect x="99" y="112" width="4" height="13" fill="#9CA3AF" />
+                <rect x="104" y="102" width="4" height="23" fill="#059669" />
+                <text x="102" y="135" font-size="9" fill="#9CA3AF" text-anchor="middle">$22K</text>
+
+                <!-- Apr: $22K -->
+                <rect x="116" y="112" width="4" height="13" fill="#D1D5DB" />
+                <rect x="121" y="112" width="4" height="13" fill="#9CA3AF" />
+                <rect x="126" y="102" width="4" height="23" fill="#059669" />
+                <text x="124" y="135" font-size="9" fill="#9CA3AF" text-anchor="middle">$22K</text>
+
+                <!-- May: $24K -->
+                <rect x="138" y="111" width="4" height="14" fill="#D1D5DB" />
+                <rect x="143" y="111" width="4" height="14" fill="#9CA3AF" />
+                <rect x="148" y="100" width="4" height="25" fill="#059669" />
+                <text x="146" y="135" font-size="9" fill="#9CA3AF" text-anchor="middle">$24K</text>
+
+                <!-- Jun: $27K -->
+                <rect x="160" y="109" width="4" height="16" fill="#D1D5DB" />
+                <rect x="165" y="109" width="4" height="16" fill="#9CA3AF" />
+                <rect x="170" y="97" width="4" height="28" fill="#059669" />
+                <text x="168" y="135" font-size="9" fill="#9CA3AF" text-anchor="middle">$27K</text>
+
+                <!-- Jul: $19K -->
+                <rect x="182" y="114" width="4" height="11" fill="#D1D5DB" />
+                <rect x="187" y="114" width="4" height="11" fill="#9CA3AF" />
+                <rect x="192" y="106" width="4" height="19" fill="#059669" />
+                <text x="190" y="135" font-size="9" fill="#9CA3AF" text-anchor="middle">$19K</text>
+
+                <!-- Aug: $49K -->
+                <rect x="204" y="104" width="4" height="21" fill="#D1D5DB" />
+                <rect x="209" y="104" width="4" height="21" fill="#9CA3AF" />
+                <rect x="214" y="81" width="4" height="44" fill="#059669" />
+                <text x="212" y="135" font-size="9" fill="#9CA3AF" text-anchor="middle">$49K</text>
+
+                <!-- Sep: $13K -->
+                <rect x="226" y="118" width="4" height="7" fill="#D1D5DB" />
+                <rect x="231" y="118" width="4" height="7" fill="#9CA3AF" />
+                <rect x="236" y="109" width="4" height="16" fill="#059669" />
+                <text x="234" y="135" font-size="9" fill="#9CA3AF" text-anchor="middle">$13K</text>
+
+                <!-- Oct: $12K -->
+                <rect x="248" y="119" width="4" height="6" fill="#D1D5DB" />
+                <rect x="253" y="119" width="4" height="6" fill="#9CA3AF" />
+                <rect x="258" y="110" width="4" height="15" fill="#059669" />
+                <text x="256" y="135" font-size="9" fill="#9CA3AF" text-anchor="middle">$12K</text>
+
+                <!-- Nov: $8.6K -->
+                <rect x="270" y="121" width="4" height="4" fill="#D1D5DB" />
+                <rect x="275" y="121" width="4" height="4" fill="#9CA3AF" />
+                <rect x="280" y="113" width="4" height="12" fill="#059669" />
+                <text x="278" y="135" font-size="9" fill="#9CA3AF" text-anchor="middle">$8.6K</text>
+
+                <!-- Dec: $91K -->
+                <rect x="292" y="101" width="4" height="24" fill="#D1D5DB" />
+                <rect x="297" y="101" width="4" height="24" fill="#9CA3AF" />
+                <rect x="302" y="44" width="4" height="81" fill="#059669" />
+                <text x="300" y="135" font-size="9" fill="#9CA3AF" text-anchor="middle">$91K</text>
+
+                <!-- Legend -->
+                <text x="50" y="10" font-size="11" fill="#6B7280">Budget (light)</text>
+                <rect x="45" y="2" width="3" height="3" fill="#D1D5DB" />
+                <text x="150" y="10" font-size="11" fill="#6B7280">Committed (medium)</text>
+                <rect x="145" y="2" width="3" height="3" fill="#9CA3AF" />
+                <text x="280" y="10" font-size="11" fill="#6B7280">Actuals (dark green)</text>
+                <rect x="275" y="2" width="3" height="3" fill="#059669" />
+              </svg>
+            </div>
           </div>
-          <div class="proj-amt">
-            <div class="amt-label">Actual / Budget</div>
-            <div class="amt-val">$2.1M / $2.36M</div>
+
+          <!-- Budget Alert Items -->
+          <div class="budget-alert-list">
+            <div class="budget-alert-row">
+              <div class="alert-icon red">⚠</div>
+              <div class="alert-body">
+                <div class="alert-title">Phoenix Industrial Warehouse is over budget by $240,000</div>
+                <div class="alert-sub"><span class="alert-link">Republic Steel MEP work</span>, <span class="alert-link">Final electrical install</span></div>
+              </div>
+              <div class="alert-arrow">→</div>
+            </div>
+            <div class="budget-alert-row">
+              <div class="alert-icon">⚠</div>
+              <div class="alert-body">
+                <div class="alert-title">Camelback Commons – Division 05 Metals is trending 14% over estimate</div>
+                <div class="alert-sub">At current spend velocity, projected overrun: $25,741</div>
+              </div>
+              <div class="alert-arrow">→</div>
+            </div>
           </div>
-          <span class="pill pill-red">● Over Budget</span>
+        </div>
+      </div>
+
+      <!-- ACTUALS TAB -->
+      <div id="tab-actuals" class="tab-content" style="display: none;">
+        <div class="tab-table-wrap">
+          <div class="table-card">
+            <table>
+              <thead>
+                <tr>
+                  <th>Budget</th>
+                  <th>Vendor</th>
+                  <th class="r">Amount</th>
+                  <th>Date</th>
+                  <th>Category</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="data-row">
+                  <td>Camelback Commons</td>
+                  <td>Nucor Virginia</td>
+                  <td class="r">$18,420</td>
+                  <td>Mar 14</td>
+                  <td>Div 05 Metals</td>
+                </tr>
+                <tr class="data-row">
+                  <td>Operations</td>
+                  <td>Workgrounds INC</td>
+                  <td class="r">$5,682</td>
+                  <td>Mar 12</td>
+                  <td>General</td>
+                </tr>
+                <tr class="data-row">
+                  <td>Camelback Commons</td>
+                  <td>Commercial Metals</td>
+                  <td class="r">$24,100</td>
+                  <td>Mar 10</td>
+                  <td>Div 05 Metals</td>
+                </tr>
+                <tr class="data-row">
+                  <td>Camelback Commons</td>
+                  <td>Southwest Steel</td>
+                  <td class="r">$30,240</td>
+                  <td>Feb 22</td>
+                  <td>Div 05 Metals</td>
+                </tr>
+                <tr class="data-row">
+                  <td>Operations</td>
+                  <td>WeWork</td>
+                  <td class="r">$12,400</td>
+                  <td>Feb 15</td>
+                  <td>Facilities</td>
+                </tr>
+                <tr class="data-row">
+                  <td>Mesa Verde</td>
+                  <td>Vulcan Materials</td>
+                  <td class="r">$8,900</td>
+                  <td>Feb 10</td>
+                  <td>Div 03 Concrete</td>
+                </tr>
+                <tr class="data-row">
+                  <td>Phoenix Industrial</td>
+                  <td>Republic Steel</td>
+                  <td class="r">$31,200</td>
+                  <td>Feb 28</td>
+                  <td>Div 05 Metals</td>
+                </tr>
+                <tr class="data-row">
+                  <td>Operations</td>
+                  <td>Adobe Systems</td>
+                  <td class="r">$4,200</td>
+                  <td>Feb 5</td>
+                  <td>Software</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMMITTED TAB -->
+      <div id="tab-committed" class="tab-content" style="display: none;">
+        <div class="tab-table-wrap">
+          <div class="table-card">
+            <table>
+              <thead>
+                <tr>
+                  <th>Budget</th>
+                  <th>Description</th>
+                  <th class="r">Amount</th>
+                  <th>Expected Close</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="data-row">
+                  <td>Camelback Commons</td>
+                  <td>Structural steel order — Republic Steel</td>
+                  <td class="r">$45,000</td>
+                  <td>Apr 1</td>
+                  <td><span class="pill pill-green">✓ Approved</span></td>
+                </tr>
+                <tr class="data-row">
+                  <td>Mesa Verde</td>
+                  <td>Concrete pour — Vulcan Materials</td>
+                  <td class="r">$28,500</td>
+                  <td>Mar 28</td>
+                  <td><span class="pill pill-yellow">⊙ Pending</span></td>
+                </tr>
+                <tr class="data-row">
+                  <td>Phoenix Industrial</td>
+                  <td>Final MEP work</td>
+                  <td class="r">$180,000</td>
+                  <td>Mar 30</td>
+                  <td><span class="pill pill-green">✓ Approved</span></td>
+                </tr>
+                <tr class="data-row">
+                  <td>Operations</td>
+                  <td>Annual software licenses</td>
+                  <td class="r">$38,000</td>
+                  <td>Apr 15</td>
+                  <td><span class="pill pill-yellow">⊙ Pending</span></td>
+                </tr>
+                <tr class="data-row">
+                  <td>Camelback Commons</td>
+                  <td>Division 09 Finishes materials</td>
+                  <td class="r">$17,537</td>
+                  <td>May 1</td>
+                  <td><span class="pill" style="background: #F3F4F6; color: #374151;">◌ Draft</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONSTRUCTION PROJECTS TAB -->
+      <div id="tab-construction" class="tab-content" style="display: none;">
+        <div class="projects-wrap">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div class="projects-meta">Active Projects — 3</div>
+            <button class="btn btn-dark" onclick="showFlow('setup')">+ New Project</button>
+          </div>
+
+          <div class="project-card" onclick="showScreen('screen-project-detail')">
+            <div class="status-dot dot-yellow"></div>
+            <div class="proj-info">
+              <div class="proj-name">Camelback Commons – Phase 1</div>
+              <div class="proj-meta">Phoenix, AZ · SAM Construction Group · Est. completion Jun 15, 2025</div>
+            </div>
+            <div class="proj-progress">
+              <div class="prog-label">
+                <span>52% of budget spent</span>
+                <span class="warn-tag">⚠ Div 05</span>
+              </div>
+              <div class="prog-bar"><div class="prog-fill fill-y" style="width:52%"></div></div>
+            </div>
+            <div class="proj-amt">
+              <div class="amt-label">Actual / Budget</div>
+              <div class="amt-val">$487K / $941K</div>
+            </div>
+            <span class="pill pill-yellow">● Needs Review</span>
+          </div>
+
+          <div class="project-card" onclick="showScreen('screen-project-detail')">
+            <div class="status-dot dot-green"></div>
+            <div class="proj-info">
+              <div class="proj-name">Mesa Verde Office Park – Bldg B</div>
+              <div class="proj-meta">Scottsdale, AZ · SAM Construction Group · Est. completion Aug 30, 2025</div>
+            </div>
+            <div class="proj-progress">
+              <div class="prog-label"><span>28% of budget spent</span></div>
+              <div class="prog-bar"><div class="prog-fill fill-g" style="width:28%"></div></div>
+            </div>
+            <div class="proj-amt">
+              <div class="amt-label">Actual / Budget</div>
+              <div class="amt-val">$412K / $1.47M</div>
+            </div>
+            <span class="pill pill-green">● On Track</span>
+          </div>
+
+          <div class="project-card" onclick="showScreen('screen-project-detail')">
+            <div class="status-dot dot-red"></div>
+            <div class="proj-info">
+              <div class="proj-name">Phoenix Industrial Warehouse</div>
+              <div class="proj-meta">Phoenix, AZ · SAM Construction Group · Est. completion Mar 30, 2025</div>
+            </div>
+            <div class="proj-progress">
+              <div class="prog-label">
+                <span>89% of budget spent</span>
+                <span style="color:#EF4444;font-size:10px;font-weight:600;">Margin 1.1%</span>
+              </div>
+              <div class="prog-bar"><div class="prog-fill fill-r" style="width:89%"></div></div>
+            </div>
+            <div class="proj-amt">
+              <div class="amt-label">Actual / Budget</div>
+              <div class="amt-val">$2.1M / $2.36M</div>
+            </div>
+            <span class="pill pill-red">● Over Budget</span>
+          </div>
         </div>
       </div>
     </div>
@@ -491,7 +845,9 @@
       <div class="page-header">
         <div>
           <div class="breadcrumb">
-            <span class="bc-link" onclick="showScreen('screen-dash-home')">Construction Projects</span>
+            <span class="bc-link" onclick="showTab('construction')">Budgets</span>
+            <span>›</span>
+            <span class="bc-link" onclick="showTab('construction')">Construction Projects</span>
             <span>›</span>
             <span>Camelback Commons – Phase 1</span>
           </div>
@@ -578,7 +934,7 @@
           <button class="btn btn-outline btn-sm" onclick="showScreen('screen-div-detail')">↓ Div 05 Transactions</button>
           <button class="btn btn-outline btn-sm">⬇ Export for Owner Billing</button>
           <button class="btn btn-outline btn-sm">+ Flag Change Order</button>
-          <button class="btn btn-outline btn-sm" onclick="showScreen('screen-dash-home')">← All Projects</button>
+          <button class="btn btn-outline btn-sm" onclick="showTab('construction')">← All Projects</button>
         </div>
       </div>
     </div>
@@ -590,9 +946,11 @@
       <div class="page-header">
         <div>
           <div class="breadcrumb">
-            <span class="bc-link" onclick="showScreen('screen-dash-home')">Construction Projects</span>
+            <span class="bc-link" onclick="showTab('construction')">Budgets</span>
             <span>›</span>
-            <span class="bc-link" onclick="showScreen('screen-project-detail')">Camelback Commons</span>
+            <span class="bc-link" onclick="showTab('construction')">Construction Projects</span>
+            <span>›</span>
+            <span>Camelback Commons</span>
             <span>›</span>
             <span>Division 05 – Metals</span>
           </div>
@@ -797,6 +1155,7 @@
 // ════════════════════════════════════════════════════════
 //  DATA
 // ════════════════════════════════════════════════════════
+
 const CONTRACT = 1050000;
 const BID_BUDGET = 941000;
 
@@ -823,7 +1182,7 @@ function totals() {
 function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
 
 // ════════════════════════════════════════════════════════
-//  ROUTING
+//  ROUTING & TAB SWITCHING
 // ════════════════════════════════════════════════════════
 function showFlow(flow) {
   ['dashboard','setup','fw'].forEach(f => {
@@ -833,6 +1192,7 @@ function showFlow(flow) {
 
   if (flow === 'dashboard') {
     showScreen('screen-dash-home');
+    showTab('overview');
   } else if (flow === 'setup') {
     showScreen('screen-setup');
     wStep = 1; renderWizard();
@@ -846,6 +1206,22 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   if (id === 'screen-project-detail') { renderCSI(); updatePCAC(); }
+}
+
+function showTab(tabName) {
+  // Hide all tab content
+  document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+  // Show selected tab content
+  const tabEl = document.getElementById('tab-' + tabName);
+  if (tabEl) tabEl.style.display = 'block';
+
+  // Update active class on tab buttons
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  const tabBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => {
+    const label = btn.textContent.trim().toLowerCase();
+    return label === tabName || (tabName === 'construction' && label === 'construction projects');
+  });
+  if (tabBtn) tabBtn.classList.add('active');
 }
 
 // ════════════════════════════════════════════════════════
