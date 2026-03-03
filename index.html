@@ -864,26 +864,22 @@
     ════════════════════════════════════════════════ -->
     <div class="screen" id="screen-project-detail">
       <div class="page-header">
-        <div style="width:100%">
-          <button class="back-btn" onclick="showTab('construction')">← Back to Projects</button>
-          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-            <div>
-              <div class="breadcrumb">
-                <span class="bc-link" onclick="showTab('construction')">Budgets</span>
-                <span>›</span>
-                <span class="bc-link" onclick="showTab('construction')">Construction Projects</span>
-                <span>›</span>
-                <span id="detail-bc-name">Camelback Commons – Phase 1</span>
-              </div>
-              <div class="page-title" id="detail-title">Camelback Commons – Phase 1</div>
-              <div class="page-subtitle" id="detail-subtitle">Phoenix, AZ · Contract: $1,050,000 · Scheduled completion: Jun 15, 2026</div>
-            </div>
-            <span class="pill pill-yellow" style="font-size:12px;padding:6px 13px;flex-shrink:0;margin-left:16px;" id="detail-status">● Needs Review</span>
+        <div>
+          <div class="breadcrumb">
+            <span class="bc-link" onclick="showTab('construction')">Budgets</span>
+            <span>›</span>
+            <span class="bc-link" onclick="showTab('construction')">Construction Projects</span>
+            <span>›</span>
+            <span id="detail-bc-name">Camelback Commons – Phase 1</span>
           </div>
+          <div class="page-title" id="detail-title">Camelback Commons – Phase 1</div>
+          <div class="page-subtitle" id="detail-subtitle">Phoenix, AZ · Contract: $1,050,000 · Scheduled completion: Jun 15, 2026</div>
         </div>
+        <span class="pill pill-yellow" style="font-size:12px;padding:6px 13px;" id="detail-status">● Needs Review</span>
       </div>
 
       <div class="detail-wrap">
+        <button class="back-btn" onclick="showTab('construction')">← Back to Projects</button>
         <!-- Metric cards -->
         <div class="metric-row">
           <div class="metric-card">
