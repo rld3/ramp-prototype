@@ -845,7 +845,6 @@
             <div class="proj-progress">
               <div class="prog-label">
                 <span>89% of budget spent</span>
-                <span style="color:#EF4444;font-size:10px;font-weight:600;">Margin 1.1%</span>
               </div>
               <div class="prog-bar"><div class="prog-fill fill-r" style="width:89%"></div></div>
             </div>
@@ -1059,7 +1058,7 @@
             <div class="vendor-dot">NV</div>
             <div class="tx-info">
               <div class="tx-vendor">Nucor Virginia (Steel Distribution)</div>
-              <div class="tx-meta">Mar 14, 2026 · Mike Torres · Card ••4821 <span class="ai-chip">✦ AI mapped</span></div>
+              <div class="tx-meta">Mar 14, 2026 · Tristan · Card ••4821 <span class="ai-chip">✦ AI mapped</span></div>
             </div>
             <div class="tx-amt">$18,420</div>
           </div>
@@ -1067,7 +1066,7 @@
             <div class="vendor-dot">CM</div>
             <div class="tx-info">
               <div class="tx-vendor">Commercial Metals Company</div>
-              <div class="tx-meta">Mar 10, 2026 · Mike Torres · Card ••4821 <span class="ai-chip">✦ AI mapped</span></div>
+              <div class="tx-meta">Mar 10, 2026 · Tristan · Card ••4821 <span class="ai-chip">✦ AI mapped</span></div>
             </div>
             <div class="tx-amt">$24,100</div>
           </div>
@@ -1083,7 +1082,7 @@
             <div class="vendor-dot">RS</div>
             <div class="tx-info">
               <div class="tx-vendor">Republic Steel (Rebar &amp; Structural)</div>
-              <div class="tx-meta">Feb 28, 2026 · Mike Torres · Card ••4821 <span class="ai-chip">✦ AI mapped</span></div>
+              <div class="tx-meta">Feb 28, 2026 · Tristan · Card ••4821 <span class="ai-chip">✦ AI mapped</span></div>
             </div>
             <div class="tx-amt">$31,200</div>
           </div>
@@ -1091,7 +1090,7 @@
             <div class="vendor-dot">SW</div>
             <div class="tx-info">
               <div class="tx-vendor">Southwest Steel Supply</div>
-              <div class="tx-meta">Feb 22, 2026 · Mike Torres · Card ••4821 <span class="ai-chip">✦ AI mapped</span></div>
+              <div class="tx-meta">Feb 22, 2026 · Tristan · Card ••4821 <span class="ai-chip">✦ AI mapped</span></div>
             </div>
             <div class="tx-amt">$30,240</div>
           </div>
@@ -1551,7 +1550,7 @@ function renderWizard() {
       <div class="form-group"><label class="form-label">Project Finance Lead (receives PCAC alerts)</label>
         <input class="form-input" value="James Hardy (CFO)"></div>
       <div class="form-group"><label class="form-label">Division 05 – Metals Owner</label>
-        <input class="form-input" value="Mike Torres (Foreman)"></div>
+        <input class="form-input" value="Tristan (Foreman)"></div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Warning Threshold</label>
           <input class="form-input" value="75% of division budget consumed"></div>
@@ -1567,13 +1566,12 @@ function renderWizard() {
       </div>
     </div>`;
   } else if (wStep === 5) {
-    injectNewProjectCard();
     cHtml = `<div class="wcard">
       <div class="success-wrap">
         <div class="success-icon">✓</div>
         <div class="success-title">Project Budget Activated!</div>
         <div class="success-sub">${wProjectData.name} is live. PCAC projection will begin calculating as the first transactions post. Division owners have been notified via SMS.</div>
-        <button class="btn btn-dark" onclick="showFlow('dashboard');showTab('construction')">View All Projects →</button>
+        <button class="btn btn-dark" onclick="injectNewProjectCard();showFlow('dashboard');showTab('construction')">View All Projects →</button>
       </div>
     </div>`;
     // Hide steps bar on success
@@ -1697,7 +1695,7 @@ const SMS_STEPS = [
 ];
 
 const FW_STEPS = [
-  { title:'Card Swipe', body:'Mike Torres swipes his Ramp card at Vulcan Materials for $2,140 in concrete aggregate.' },
+  { title:'Card Swipe', body:'Tristan swipes his Ramp card at Vulcan Materials for $2,140 in concrete aggregate.' },
   { title:'Ramp Sends Receipt Request', body:'Ramp automatically sends an SMS receipt request to the field worker. No app required.' },
   { title:'AI Reads Receipt &amp; Suggests CSI Code', body:'Ramp AI identifies Vulcan Materials as an aggregate/quarry supplier and suggests <strong>Division 03 – Concrete</strong>.' },
   { title:'Worker Confirms — Budget Updates Live', body:'Mike replies "Y". Transaction posts to Div 03 in real time. PCAC projection recalculates instantly.' },
