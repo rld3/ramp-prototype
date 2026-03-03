@@ -1504,7 +1504,7 @@ function renderWizard() {
         return `<div class="div-row div-row-expandable" onclick="toggleConcreteBreakdown(event)">
           <div class="div-badge">Div ${d.code}</div>
           <div class="div-name-w">${d.name} <span id="concrete-toggle-icon" class="div-toggle-icon">▶</span></div>
-          <input class="div-input" value="$${W_DIV_DEFAULTS[d.code].toLocaleString()}" oninput="updateWTotal()" onclick="event.stopPropagation()">
+          <input class="div-input" placeholder="$0" oninput="updateWTotal()" onclick="event.stopPropagation()">
         </div>
         <div id="concrete-breakdown" class="subdiv-block" style="display:none;">
           <div class="subdiv-row">
@@ -1527,7 +1527,7 @@ function renderWizard() {
       return `<div class="div-row">
         <div class="div-badge">Div ${d.code}</div>
         <div class="div-name-w">${d.name}</div>
-        <input class="div-input" value="$${W_DIV_DEFAULTS[d.code].toLocaleString()}" oninput="updateWTotal()">
+        <input class="div-input" placeholder="$0" oninput="updateWTotal()">
       </div>`;
     }).join('');
     cHtml = `<div class="wcard">
@@ -1536,7 +1536,7 @@ function renderWizard() {
       <div id="div-rows-container">${rows}</div>
       <button class="btn btn-outline btn-sm" style="margin-top: 10px;" onclick="addDivisionRow()">+ Add Division</button>
       <div class="budget-summary" id="w-summary">
-        Total Budget: <strong>$941,000</strong> · Contract Value: $1,050,000 · Bid Margin: <strong>10.4%</strong>
+        Total Budget: <strong>$0</strong> · Contract Value: — · Bid Margin: <strong>—</strong>
       </div>
       <div class="wizard-footer">
         <button class="btn btn-outline" onclick="wStep--;renderWizard()">← Back</button>
