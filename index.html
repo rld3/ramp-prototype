@@ -483,7 +483,7 @@
         <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
         <button class="tab-btn" onclick="showTab('actuals')">Actuals</button>
         <button class="tab-btn" onclick="showTab('committed')">Committed</button>
-        <button class="tab-btn" onclick="showTab('construction')">Construction Projects</button>
+        <button class="tab-btn" onclick="showScreen('screen-dash-home');showTab('construction')">Construction Projects</button>
       </div>
 
       <!-- OVERVIEW TAB -->
@@ -865,9 +865,9 @@
       <div class="page-header">
         <div>
           <div class="breadcrumb">
-            <span class="bc-link" onclick="showTab('construction')">Budgets</span>
+            <span class="bc-link" onclick="showScreen('screen-dash-home');showTab('construction')">Budgets</span>
             <span>›</span>
-            <span class="bc-link" onclick="showTab('construction')">Construction Projects</span>
+            <span class="bc-link" onclick="showScreen('screen-dash-home');showTab('construction')">Construction Projects</span>
             <span>›</span>
             <span id="detail-bc-name">Camelback Commons – Phase 1</span>
           </div>
@@ -878,7 +878,7 @@
       </div>
 
       <div class="detail-wrap">
-        <button class="back-btn" onclick="showTab('construction')">← Back to Projects</button>
+        <button class="back-btn" onclick="showScreen('screen-dash-home');showTab('construction')">← Back to Projects</button>
         <!-- Metric cards -->
         <div class="metric-row">
           <div class="metric-card">
@@ -955,7 +955,7 @@
           <button class="btn btn-outline btn-sm" onclick="showScreen('screen-div-detail')">↓ Div 05 Transactions</button>
           <button class="btn btn-outline btn-sm">⬇ Export for Owner Billing</button>
           <button class="btn btn-outline btn-sm">+ Flag Change Order</button>
-          <button class="btn btn-outline btn-sm" onclick="showTab('construction')">← All Projects</button>
+          <button class="btn btn-outline btn-sm" onclick="showScreen('screen-dash-home');showTab('construction')">← All Projects</button>
         </div>
       </div>
     </div>
@@ -967,9 +967,9 @@
       <div class="page-header">
         <div>
           <div class="breadcrumb">
-            <span class="bc-link" onclick="showTab('construction')">Budgets</span>
+            <span class="bc-link" onclick="showScreen('screen-dash-home');showTab('construction')">Budgets</span>
             <span>›</span>
-            <span class="bc-link" onclick="showTab('construction')">Construction Projects</span>
+            <span class="bc-link" onclick="showScreen('screen-dash-home');showTab('construction')">Construction Projects</span>
             <span>›</span>
             <span>Camelback Commons</span>
             <span>›</span>
@@ -1474,7 +1474,7 @@ function renderWizard() {
           <input class="form-input" value="Dec 15, 2026"></div>
       </div>
       <div class="wizard-footer">
-        <span></span>
+        <button class="btn btn-outline" onclick="showScreen('screen-dash-home');showTab('construction')">← Back</button>
         <button class="btn btn-dark" onclick="saveProjectDetails();wStep++;renderWizard()">Continue →</button>
       </div>
     </div>`;
