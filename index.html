@@ -1425,7 +1425,7 @@ function updatePCAC() {
 //  WIZARD
 // ════════════════════════════════════════════════════════
 let wStep = 1;
-let wProjectData = { name: 'Camelback Commons – Phase 2', gc: 'SAM Construction Group', completion: 'Dec 15, 2026', contract: '$1,050,000' };
+let wProjectData = { name: 'New Project', gc: '', completion: '', contract: '$0' };
 const W_LABELS = ['Project Details','Cost Structure','Division Budgets','Owners & Alerts'];
 const W_DIV_DEFAULTS = {
   '01':48000,'03':218000,'05':185000,'06':94000,'09':112000,'15':156000,'16':128000
@@ -1460,18 +1460,18 @@ function renderWizard() {
       <div class="wcard-title">Project Details</div>
       <div class="wcard-sub">Enter the basic information to set up your construction project budget.</div>
       <div class="form-group"><label class="form-label">Project Name</label>
-        <input class="form-input" value="Camelback Commons – Phase 2"></div>
+        <input class="form-input" placeholder="e.g. Camelback Commons – Phase 2"></div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Contract Value</label>
-          <input class="form-input" value="$1,050,000"></div>
+          <input class="form-input" placeholder="e.g. $1,050,000"></div>
         <div class="form-group"><label class="form-label">Project Owner / GC</label>
-          <input class="form-input" value="SAM Construction Group"></div>
+          <input class="form-input" placeholder="e.g. SAM Construction Group"></div>
       </div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Start Date</label>
-          <input class="form-input" value="Jul 1, 2026"></div>
+          <input class="form-input" placeholder="e.g. Jul 1, 2026"></div>
         <div class="form-group"><label class="form-label">Scheduled Completion</label>
-          <input class="form-input" value="Dec 15, 2026"></div>
+          <input class="form-input" placeholder="e.g. Dec 15, 2026"></div>
       </div>
       <div class="wizard-footer">
         <button class="btn btn-outline" onclick="showScreen('screen-dash-home');showTab('construction')">← Back</button>
