@@ -127,27 +127,33 @@
     .project-card {
       background: white; border: 1px solid #E5E7EB; border-radius: 10px;
       padding: 16px 20px; cursor: pointer; transition: all 0.15s;
-      display: flex; align-items: center; gap: 14px; margin-bottom: 10px;
+      display: grid;
+      grid-template-columns: 10px 1fr 220px 170px 140px;
+      align-items: center;
+      gap: 16px; margin-bottom: 10px;
     }
     .project-card:hover { border-color: #059669; box-shadow: 0 2px 12px rgba(5,150,105,0.1); }
-    .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; }
     .dot-green { background: #10B981; }
     .dot-yellow { background: #F59E0B; }
     .dot-red { background: #EF4444; }
-    .proj-info { flex: 1; }
-    .proj-name { font-size: 14px; font-weight: 600; color: #111827; }
-    .proj-meta { font-size: 11px; color: #9CA3AF; margin-top: 2px; }
-    .proj-progress { width: 160px; min-width: 160px; flex-shrink: 0; }
-    .prog-label { display: flex; justify-content: space-between; font-size: 11px; color: #6B7280; margin-bottom: 4px; }
+    .proj-info { min-width: 0; }
+    .proj-name { font-size: 14px; font-weight: 600; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .proj-meta { font-size: 11px; color: #9CA3AF; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .proj-progress { min-width: 0; }
+    .prog-label { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #6B7280; margin-bottom: 5px; white-space: nowrap; gap: 6px; }
+    .prog-label span:first-child { flex-shrink: 0; }
     .prog-bar { background: #F3F4F6; border-radius: 3px; height: 5px; overflow: hidden; }
     .prog-fill { height: 100%; border-radius: 3px; }
     .fill-g { background: #10B981; }
     .fill-y { background: #F59E0B; }
     .fill-r { background: #EF4444; }
-    .proj-amt { text-align: right; min-width: 120px; flex-shrink: 0; }
+    .proj-amt { text-align: right; }
     .amt-label { font-size: 10px; color: #9CA3AF; }
     .amt-val { font-size: 15px; font-weight: 700; color: #111827; }
-    .warn-tag { font-size: 10px; color: #D97706; font-weight: 600; }
+    .warn-tag { font-size: 10px; color: #D97706; font-weight: 600; white-space: nowrap; }
+    .back-btn { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; color: #6B7280; background: none; border: 1px solid #E5E7EB; border-radius: 6px; padding: 5px 10px; cursor: pointer; margin-bottom: 12px; transition: all 0.15s; }
+    .back-btn:hover { border-color: #9CA3AF; color: #111827; }
 
     /* ── PROJECT DETAIL ───────────────────────────────── */
     .breadcrumb { font-size: 11px; color: #9CA3AF; display: flex; align-items: center; gap: 5px; margin-bottom: 6px; }
@@ -858,18 +864,23 @@
     ════════════════════════════════════════════════ -->
     <div class="screen" id="screen-project-detail">
       <div class="page-header">
-        <div>
-          <div class="breadcrumb">
-            <span class="bc-link" onclick="showTab('construction')">Budgets</span>
-            <span>›</span>
-            <span class="bc-link" onclick="showTab('construction')">Construction Projects</span>
-            <span>›</span>
-            <span id="detail-bc-name">Camelback Commons – Phase 1</span>
+        <div style="width:100%">
+          <button class="back-btn" onclick="showTab('construction')">← Back to Projects</button>
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div class="breadcrumb">
+                <span class="bc-link" onclick="showTab('construction')">Budgets</span>
+                <span>›</span>
+                <span class="bc-link" onclick="showTab('construction')">Construction Projects</span>
+                <span>›</span>
+                <span id="detail-bc-name">Camelback Commons – Phase 1</span>
+              </div>
+              <div class="page-title" id="detail-title">Camelback Commons – Phase 1</div>
+              <div class="page-subtitle" id="detail-subtitle">Phoenix, AZ · Contract: $1,050,000 · Scheduled completion: Jun 15, 2026</div>
+            </div>
+            <span class="pill pill-yellow" style="font-size:12px;padding:6px 13px;flex-shrink:0;margin-left:16px;" id="detail-status">● Needs Review</span>
           </div>
-          <div class="page-title" id="detail-title">Camelback Commons – Phase 1</div>
-          <div class="page-subtitle" id="detail-subtitle">Phoenix, AZ · Contract: $1,050,000 · Scheduled completion: Jun 15, 2026</div>
         </div>
-        <span class="pill pill-yellow" style="font-size:12px;padding:6px 13px;" id="detail-status">● Needs Review</span>
       </div>
 
       <div class="detail-wrap">
